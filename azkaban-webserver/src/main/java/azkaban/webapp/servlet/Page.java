@@ -14,7 +14,7 @@
  * the License.
  */
 
-package org.azkaban.webserver.servlet;
+package azkaban.webapp.servlet;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

@@ -14,7 +14,7 @@
  * the License.
  */
 
-package org.azkaban.webserver.servlet;
+package azkaban.webapp.servlet;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -22,12 +22,14 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.velocity.app.VelocityEngine;
 import org.azkaban.common.server.AzkabanServer;
 import org.azkaban.common.utils.Props;
-import org.azkaban.webserver.AzkabanWebServer;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+
+import azkaban.webapp.AzkabanWebServer;
 
 
 /**
@@ -58,24 +60,6 @@ public abstract class AbstractAzkabanServlet extends HttpServlet {
     return application;
   }
 
-  @Override
-  public void init(ServletConfig config) throws ServletException {
-
-    if (application == null) {
-      throw new IllegalStateException(
-          "No batch application is defined in the servlet context!");
-    }
-
-    Props props = application.getServerProps();
-    name = props.getString("azkaban.name", "");
-    label = props.getString("azkaban.label", "");
-    color = props.getString("azkaban.color", "#FF0000");
-
-    if (application instanceof AzkabanWebServer) {
-      AzkabanWebServer server = (AzkabanWebServer) application;
-    }
-  }
-
   /**
    * Creates a new velocity page to use.
    *
@@ -86,7 +70,8 @@ public abstract class AbstractAzkabanServlet extends HttpServlet {
    */
   protected Page newPage(HttpServletRequest req, HttpServletResponse resp,
       String template) {
-    Page page = new Page(req, resp, application.getVelocityEngine(), template);
+	VelocityEngine ve = new VelocityEngine();
+    Page page = new Page(req, resp, ve, template);
     page.add("azkaban_name", name);
     page.add("azkaban_label", label);
     page.add("azkaban_color", color);

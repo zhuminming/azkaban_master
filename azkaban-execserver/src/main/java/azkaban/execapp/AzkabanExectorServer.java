@@ -1,4 +1,4 @@
-package org.azkaban.execserver;
+package azkaban.execapp;
 
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.servlet.Context;

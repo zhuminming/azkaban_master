@@ -1,7 +1,10 @@
 package org.azkaban.common.database;
 
 import org.apache.commons.dbcp.BasicDataSource;
+import org.apache.commons.dbutils.QueryRunner;
 import org.azkaban.common.utils.Props;
+
+import com.mysql.jdbc.Connection;
 
 public class AzkabanDataSource extends BasicDataSource {
 
@@ -32,5 +35,10 @@ public class AzkabanDataSource extends BasicDataSource {
 					password, numconnections);
 		}
 		return dataSource;
+	}
+	
+	
+	public QueryRunner getRunner(){
+		return new QueryRunner(this);
 	}
 }
