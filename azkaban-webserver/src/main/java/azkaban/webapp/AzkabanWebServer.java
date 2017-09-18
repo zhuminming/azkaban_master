@@ -23,7 +23,7 @@ public class AzkabanWebServer {
 		server = new Server(8080);
 //		WebAppContext root = new WebAppContext();
 		ServletContextHandler root = new ServletContextHandler(ServletContextHandler.SESSIONS);
-		root.setContextPath("/");
+		root.setContextPath("/index");
 		root.setResourceBase(staticDir);
 		root.addServlet(new ServletHolder(new AzkabanServlet()), "/index");
 		server.setHandler(root);

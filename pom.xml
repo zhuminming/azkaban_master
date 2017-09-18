@@ -32,6 +32,8 @@
 		<jopt-simple.version>4.3</jopt-simple.version>
 		<!-- mysql数据库连接驱动 -->
 		<mysql.version>5.1.6</mysql.version>
+		<!-- json jar包 -->
+		<json.version>2.4</json.version>
 	</properties>
 	<dependencies>
 		<dependency>

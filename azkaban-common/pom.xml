@@ -48,5 +48,11 @@
 			<artifactId>jopt-simple</artifactId>
 			<version>${jopt-simple.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>net.sf.json-lib</groupId>
+			<artifactId>json-lib</artifactId>
+			<version>${json.version}</version>
+			<classifier>jdk15</classifier>
+		</dependency>
 	</dependencies>
 </project>
