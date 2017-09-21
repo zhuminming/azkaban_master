@@ -3,7 +3,7 @@
  * zmm
  * 20172017年9月14日下午10:04:31
  */
-package org.azkaban.common.database;
+package org.azkaban.common.project;
 
 import java.io.UnsupportedEncodingException;
 import java.sql.Connection;
@@ -17,10 +17,12 @@ import javax.sql.DataSource;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.ResultSetHandler;
 import org.apache.log4j.Logger;
+import org.azkaban.common.database.AzkabanDataSource;
 import org.azkaban.common.executor.ExecutorLoader;
 import org.azkaban.common.flow.Flow;
 import org.azkaban.common.node.Node;
-import org.azkaban.common.project.Project;
+import org.azkaban.common.utils.Constant;
+import org.azkaban.common.utils.JsonUtils;
 import org.azkaban.common.utils.Props;
 
 import com.google.common.collect.Lists;
@@ -29,25 +31,42 @@ import com.google.common.collect.Lists;
  * @author zmm
  *
  */
-public class JdbcProjectLoador implements ExecutorLoader {
-	private static final Logger logger = Logger
-			.getLogger(JdbcProjectLoador.class);
+public class JdbcProjectLoador implements ProjectLoader{
+	private static final Logger logger = Logger.getLogger(JdbcProjectLoador.class);
 	private AzkabanDataSource datasource;
 
 	public JdbcProjectLoador(Props props) {
 		datasource = AzkabanDataSource.getDataSource(props);
 	}
+	
+	public Project createNewProject(String projectName) throws Exception{
+	    Connection connection = getConnection();
+	    Project project = createNewProject(connection,projectName);
+	    return project;
+	}
 
-	public synchronized Project createNewProject(Connection connect,
+	private Connection getConnection(){
+	    Connection connection=null;
+	    
+	    try {
+		connection = datasource.getConnection();
+	    } catch (SQLException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	    }
+	    
+	    return connection;
+	}
+	
+	private synchronized Project createNewProject(Connection connect,
 			String projectName) throws Exception {
-		QueryRunner runner = datasource.getRunner();
+		QueryRunner runner = new QueryRunner();
 		if (!getAvailableProjects(connect, projectName).isEmpty()) {
-			throw new Exception("Active project with name " + projectName
-					+ " already exists in db.");
+			throw new Exception("Active project with name " + projectName + " already exists in db.");
 		}
 		final String INSERT_PROJECT = "INSERT INTO projects ( name, active, modified_time, create_time, version, last_modified_by) values (?,?,?,?,?,?)";
 
-		int result = runner.update(INSERT_PROJECT, projectName, true,
+		int result = runner.update(connect,INSERT_PROJECT, projectName, true,
 				System.currentTimeMillis(), System.currentTimeMillis(), null,
 				System.currentTimeMillis());
 		connect.commit();
@@ -65,31 +84,69 @@ public class JdbcProjectLoador implements ExecutorLoader {
 		return lists.get(0);
 	}
 
-	public synchronized Flow createNewFlow(Connection connect,int version, String flowName,Project project) throws Exception {
+	public synchronized void changeProjectVersion(Project project,int version) throws Exception{
 		QueryRunner runner = datasource.getRunner();
-		if (!getAvailableFlows(connect,flowName).isEmpty()) {
-			throw new Exception("Active Flow with name " + flowName
+		long lastModifiedTimestamp = System.currentTimeMillis();
+		final String UPADTE_PROJECT_VERSION = "UPDATE projects set version=?,modified_time=?,last_modified_by=? WHERE id=? ";
+		int result = runner.update(UPADTE_PROJECT_VERSION, version, lastModifiedTimestamp ,project.getId());
+		project.setVersion(version);
+		project.setLastModifiedTimestamp(lastModifiedTimestamp);
+		if(result==0){
+			throw new Exception();
+		}
+	}
+	
+
+	public synchronized Flow createNewFlow(Connection connect,int version, Flow flow,Project project) throws Exception {
+		QueryRunner runner = new QueryRunner();
+		if (!getAvailableFlows(connect,flow.getFlow_name()).isEmpty()) {
+			throw new Exception("Active Flow with name " + flow.getFlow_name()
 					+ " already exists in db.");
 		}
-		final String INSERT_FLOW = "INSERT INTO project_flows (project_id, version, flow_id, modified_time) values (?,?,?,?)";
-		int result = runner.update(connect, INSERT_FLOW, project.getId(),version,flowName);
+		final String INSERT_FLOW = "INSERT INTO project_flows (project_id, version, flow_name, modified_time) values (?,?,?,?)";
+		int result = runner.update(connect, INSERT_FLOW, project.getId(),version,flow.getFlow_name());
 		connect.commit();
 		if(result==0){
 			throw new Exception();
 		}
-		List<Flow> lists = getAvailableFlows(connect,flowName);
+		List<Flow> lists = getAvailableFlows(connect,flow.getFlow_name());
 		if (lists.isEmpty()) {
-			throw new Exception("Active project with name " + flowName
+			throw new Exception("Active flow with name " + flow.getFlow_name()
 					+ " is not exists in db.");
 		} else if (lists.size() > 1) {
-			throw new Exception("More than one active project " + flowName);
+			throw new Exception("More than one active flow " + flow.getFlow_name());
 		}
 		return lists.get(0);
 	}
 	
-	public Node createNewNode(Connection connect,Project project ,Flow flow ,String nodename,int vesrion){
+	public synchronized void updateFlow(Flow flow ,int version,Project project ) throws Exception{
 		QueryRunner runner = datasource.getRunner();
-		
+		final String UDATE_FLOW = "UPDATE　project_flows set  wehere project_id = ? & flow_name = ?";
+		int result = runner.update(UDATE_FLOW, version);
+		if(result==0){
+			throw new Exception();
+		}
+	}
+	public synchronized Node createNewNode(Connection connect,Project project ,Node node,int vesrion) throws Exception{
+		QueryRunner runner = datasource.getRunner();
+		if(getAvailableNodes(connect,node.getNode_name()).isEmpty()){
+			throw new Exception("Active node with name " + node.getNode_name()
+					+ " is not exists in db.");
+		}
+		final String INSERT_NODE = "INSERT INTO project_nodes (project_id, version, flow_name , node_name , modified_time , json) values (?,?,?,?,?,?)";
+		int result = runner.update(connect, INSERT_NODE, project.getId(),node.getLevel(),node.getFlow_name(),node.getNode_name(),System.currentTimeMillis(),JsonUtils.toJSON(node));
+		connect.commit();
+		if (result == 0) {
+			throw new Exception();
+		}
+		List<Node> lists = getAvailableNodes(connect,node.getNode_name());
+		if (lists.isEmpty()) {
+			throw new Exception("Active node with name " + node.getNode_name()
+					+ " is not exists in db.");
+		} else if (lists.size() > 1) {
+			throw new Exception("More than one active node " + node.getNode_name());
+		}
+		return node;
 	}
 
 	private List<Project> getAvailableProjects(Connection connect,
@@ -119,10 +176,12 @@ public class JdbcProjectLoador implements ExecutorLoader {
 		return flowLists;
 	}
 	
-	private List<Node> getAvailableNodes(Connection connect, String nodename){
+	private List<Node> getAvailableNodes(Connection connect, String nodename) throws Exception{
 		List<Node> nodeLists = Lists.newArrayList();
 		QueryRunner runner = datasource.getRunner();
 		NodeResultHandler handler = new NodeResultHandler();
+		nodeLists = runner.query(connect, NodeResultHandler.SELECT_ACTION_NODE_BY_PROJECT_FLOW, handler, nodename);
+		return nodeLists;
 	}
 
 	private static class ProjectResultHandler implements
@@ -180,7 +239,7 @@ public class JdbcProjectLoador implements ExecutorLoader {
 	
 	private class NodeResultHandler implements ResultSetHandler<List<Node>>{
 
-		private final String SELECT_ACTION_NODE_BY_PROJECT_FLOW="";
+		private static final String SELECT_ACTION_NODE_BY_PROJECT_FLOW="";
 		public List<Node> handle(ResultSet rs) throws SQLException {
 			Node node ;
 			List<Node> lists = Lists.newArrayList();
@@ -189,19 +248,23 @@ public class JdbcProjectLoador implements ExecutorLoader {
 				final int version = rs.getInt(2);
 				final String flow_name = rs.getString(3);
 				final String node_name = rs.getString(4);
-				final byte[] dataBytes = rs.getBytes(5);
+				final Long modifiedTime = rs.getLong(5);
+				final byte[] dataBytes = rs.getBytes(6);
 				try {
 					String propertyString = new String(dataBytes,"UTF-8");
+					Map<String, Object> maps = JsonUtils.parserStringToMap(propertyString);
+					node = new Node(project_id,flow_name,node_name);
+					node.setLevel(Integer.parseInt((String)maps.get(Constant.NODE_LEVEL)));
+					node.setVersion(version);
+					node.setModifiedTime(modifiedTime);
+					lists.add(node);
 				} catch (UnsupportedEncodingException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				Props props = 
-				Map<String, Object> maps = 
 				
 			}while(rs.next());
-			return null;
+			return lists;
 		}
-		
 	}
 }

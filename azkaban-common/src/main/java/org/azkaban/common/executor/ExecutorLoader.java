@@ -10,5 +10,6 @@ package org.azkaban.common.executor;
  *
  */
 public interface ExecutorLoader {
+    public ExecutableFlow fetchExecutableFlow(int id) throws Exception;
 
 }

@@ -2,27 +2,27 @@ package org.azkaban.common.node;
 
 
 public class Node {
-	private int project_id;
-	private String flow_name;
+	private  final int project_id;
+	private final String flow_name;
 	private int version;
-	private String node_name;
+	private final String node_name;
 	private long modifiedTime;
 	private int level=-1;
 	private Node node_parent;
 	private int expectedRunTimeSec = 1;
 	private String type;
 	
+	public Node(int project_id,String flow_name,String node_name){
+		this.project_id = project_id;
+		this.flow_name = flow_name;
+		this.node_name = node_name;
+	}
+	
 	public int getProject_id() {
 		return project_id;
 	}
-	public void setProject_id(int project_id) {
-		this.project_id = project_id;
-	}
 	public String getFlow_name() {
 		return flow_name;
-	}
-	public void setFlow_name(String flow_name) {
-		this.flow_name = flow_name;
 	}
 	public int getVersion() {
 		return version;
@@ -32,9 +32,6 @@ public class Node {
 	}
 	public String getNode_name() {
 		return node_name;
-	}
-	public void setNode_name(String node_name) {
-		this.node_name = node_name;
 	}
 	public long getModifiedTime() {
 		return modifiedTime;
