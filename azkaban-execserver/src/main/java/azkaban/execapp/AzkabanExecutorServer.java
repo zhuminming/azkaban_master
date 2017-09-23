@@ -1,6 +1,7 @@
 package azkaban.execapp;
 
 import org.azkaban.common.executor.ExecutorLoader;
+import org.azkaban.common.executor.JdbcExecutorLoader;
 import org.azkaban.common.project.ProjectLoader;
 import org.azkaban.common.utils.Props;
 import org.mortbay.jetty.Server;
@@ -14,8 +15,9 @@ public class AzkabanExecutorServer {
     private ExecutorLoader executorLoader;
     private ProjectLoader projectLoader;
 
-    public AzkabanExecutorServer() {
+    public AzkabanExecutorServer(Props props) {
 	this.server = new Server();
+	this.executorLoader= createExecutorLoadr(props);
 	execmanager = new ExecutorManager(props, executorLoader, projectLoader);
     }
 
@@ -26,6 +28,10 @@ public class AzkabanExecutorServer {
 	server.start();
     }
 
+    private ExecutorLoader createExecutorLoadr(Props props){
+	return new JdbcExecutorLoader(props);
+    }
+    
     public ExecutorManager getExecmanager() {
         return execmanager;
     }
