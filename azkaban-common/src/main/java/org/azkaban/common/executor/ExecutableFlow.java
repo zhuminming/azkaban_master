@@ -5,6 +5,8 @@
  */
 package org.azkaban.common.executor;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.azkaban.common.utils.TypedMapWrapper;
@@ -35,6 +37,7 @@ public class ExecutableFlow extends ExecutableFlowBase {
     private String projectName;
     private String lastModifiedUser;
     private int version;
+    private Status status = Status.READY;
     private long submitTime = -1;
     private long lastModifiedTimestamp;
     private String submitUser;
@@ -60,7 +63,121 @@ public class ExecutableFlow extends ExecutableFlowBase {
 	this.lastModifiedTimestamp = mapWrapper.getLong(LASTMODIFIEDTIME_PARAM);
 	this.lastModifiedUser = mapWrapper.getString(LASTMODIFIEDUSER_PARAM);
 	this.submitTime = mapWrapper.getLong(SUBMITTIME_PARAM);
-
     }
 
+    @Override
+    public Map<String, Object> toObject() {
+      HashMap<String, Object> flowObj = new HashMap<String, Object>();
+      fillMapFromExecutable(flowObj);
+
+      flowObj.put(EXECUTIONID_PARAM, executionId);
+      flowObj.put(EXECUTIONPATH_PARAM, executionPath);
+      flowObj.put(PROJECTID_PARAM, projectId);
+      flowObj.put(PROJECTNAME_PARAM, projectName);
+
+      if (scheduleId >= 0) {
+        flowObj.put(SCHEDULEID_PARAM, scheduleId);
+      }
+
+      flowObj.put(SUBMITUSER_PARAM, submitUser);
+      flowObj.put(VERSION_PARAM, version);
+      flowObj.put(LASTMODIFIEDTIME_PARAM, lastModifiedTimestamp);
+      flowObj.put(LASTMODIFIEDUSER_PARAM, lastModifiedUser);
+
+      flowObj.put(VERSION_PARAM, version);
+
+      flowObj.put(SUBMITTIME_PARAM, submitTime);
+
+      return flowObj;
+    }
+    
+    public int getExecutionId() {
+        return executionId;
+    }
+
+    public void setExecutionId(int executionId) {
+        this.executionId = executionId;
+    }
+
+    public int getScheduleId() {
+        return scheduleId;
+    }
+
+    public void setScheduleId(int scheduleId) {
+        this.scheduleId = scheduleId;
+    }
+
+    public int getProjectId() {
+        return projectId;
+    }
+
+    public void setProjectId(int projectId) {
+        this.projectId = projectId;
+    }
+
+    public String getProjectName() {
+        return projectName;
+    }
+
+    public void setProjectName(String projectName) {
+        this.projectName = projectName;
+    }
+
+    public String getLastModifiedUser() {
+        return lastModifiedUser;
+    }
+
+    public void setLastModifiedUser(String lastModifiedUser) {
+        this.lastModifiedUser = lastModifiedUser;
+    }
+
+    public int getVersion() {
+        return version;
+    }
+
+    public void setVersion(int version) {
+        this.version = version;
+    }
+
+    public long getSubmitTime() {
+        return submitTime;
+    }
+
+    public void setSubmitTime(long submitTime) {
+        this.submitTime = submitTime;
+    }
+
+    public long getLastModifiedTimestamp() {
+        return lastModifiedTimestamp;
+    }
+
+    public void setLastModifiedTimestamp(long lastModifiedTimestamp) {
+        this.lastModifiedTimestamp = lastModifiedTimestamp;
+    }
+
+    public String getSubmitUser() {
+        return submitUser;
+    }
+
+    public void setSubmitUser(String submitUser) {
+        this.submitUser = submitUser;
+    }
+
+    public String getExecutionPath() {
+        return executionPath;
+    }
+
+    public void setExecutionPath(String executionPath) {
+        this.executionPath = executionPath;
+    }
+
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
+    }
+    
 }

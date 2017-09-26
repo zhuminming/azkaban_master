@@ -5,6 +5,7 @@
  */
 package org.azkaban.common.executor;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,20 +19,23 @@ import com.google.common.collect.Maps;
  * @author zmm
  *
  */
-public class ExecutableFlowBase {
-    public static final String FLOW_ID_PARAM = "flow_name";
+public class ExecutableFlowBase extends ExecutableNode {
+    public static final String FLOW_NAME_PARAM = "flow_name";
     public static final String NODES_PARAM = "nodes";
     public static final String PROPERTIES_PARAM = "properties";
     public static final String SOURCE_PARAM = "source";
-    private HashMap<String, ExecutableNode> executableNodes =Maps.newHashMap();
+    private HashMap<String, ExecutableNode> executableNodes = Maps.newHashMap();
     private String flow_name;
 
-    public void fillExecutableFromMapObject(TypedMapWrapper<String, Object> flowObj) {
-	this.flow_name = flowObj.getString(FLOW_ID_PARAM);
+    public void fillExecutableFromMapObject(
+	    TypedMapWrapper<String, Object> flowObj) {
+	this.flow_name = flowObj.getString(FLOW_NAME_PARAM);
 	List<Object> lists = flowObj.getExecNodeLists(NODES_PARAM);
-	if(lists==null) return;
-	for(Object node : lists){
-	    TypedMapWrapper<String, Object> nodeMap =new  TypedMapWrapper<String, Object>(JSONObject.parseObject((String) node, Map.class));
+	if (lists == null)
+	    return;
+	for (Object node : lists) {
+	    TypedMapWrapper<String, Object> nodeMap = new TypedMapWrapper<String, Object>(
+		    JSONObject.parseObject((String) node, Map.class));
 	    ExecutableNode executableNode = new ExecutableNode();
 	    executableNode.fillExecutableFromMapObject(nodeMap);
 	    executableNode.setParentFlow(this);
@@ -39,20 +43,76 @@ public class ExecutableFlowBase {
 	}
     }
 
-    public HashMap<String, ExecutableNode> getExecutableNodes() {
-        return executableNodes;
+    @Override
+    public Map<String, Object> toObject() {
+	Map<String, Object> mapObj = new HashMap<String, Object>();
+	fillMapFromExecutable(mapObj);
+	return mapObj;
     }
 
-    public void setExecutableNodes(HashMap<String, ExecutableNode> executableNodes) {
-        this.executableNodes = executableNodes;
+    @Override
+    protected void fillMapFromExecutable(Map<String, Object> flowObjMap) {
+	super.fillMapFromExecutable(flowObjMap);
+
+	flowObjMap.put(FLOW_NAME_PARAM, flow_name);
+
+	ArrayList<Object> nodes = new ArrayList<Object>();
+	for (ExecutableNode node : executableNodes.values()) {
+	    nodes.add(node.toObject());
+	}
+	flowObjMap.put(NODES_PARAM, nodes);
+    }
+
+    public ExecutableFlowBase() {
+    }
+
+    public int getExecutionId() {
+	if (this.getParentFlow() != null) {
+	    return this.getParentFlow().getExecutionId();
+	}
+
+	return -1;
+    }
+
+    public int getProjectId() {
+	if (this.getParentFlow() != null) {
+	    return this.getParentFlow().getProjectId();
+	}
+
+	return -1;
+    }
+
+    public String getProjectName() {
+	if (this.getParentFlow() != null) {
+	    return this.getParentFlow().getProjectName();
+	}
+
+	return null;
+    }
+
+    public int getVersion() {
+	if (this.getParentFlow() != null) {
+	    return this.getParentFlow().getVersion();
+	}
+
+	return -1;
+    }
+
+    public HashMap<String, ExecutableNode> getExecutableNodes() {
+	return executableNodes;
+    }
+
+    public void setExecutableNodes(
+	    HashMap<String, ExecutableNode> executableNodes) {
+	this.executableNodes = executableNodes;
     }
 
     public String getFlow_name() {
-        return flow_name;
+	return flow_name;
     }
 
     public void setFlow_name(String flow_name) {
-        this.flow_name = flow_name;
+	this.flow_name = flow_name;
     }
-    
+
 }

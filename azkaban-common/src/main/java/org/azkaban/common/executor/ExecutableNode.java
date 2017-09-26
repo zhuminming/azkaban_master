@@ -6,6 +6,7 @@
 package org.azkaban.common.executor;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -39,7 +40,7 @@ public class ExecutableNode {
     private String jobSource;
     // Path to top level props file
     private String propsSource;
-    
+
     private Set<String> inNodes;
     private Set<String> outNodes;
 
@@ -67,94 +68,115 @@ public class ExecutableNode {
 	this.jobSource = wrappedMap.getString(JOB_SOURCE_PARAM);
     }
 
+    public Map<String, Object> toObject() {
+	Map<String, Object> mapObj = new HashMap<String, Object>();
+	fillMapFromExecutable(mapObj);
+
+	return mapObj;
+    }
+
+    protected void fillMapFromExecutable(Map<String, Object> objMap) {
+	objMap.put(NODENAME_PARAM, this.nodename);
+	objMap.put(STATUS_PARAM, status.toString());
+	objMap.put(STARTTIME_PARAM, startTime);
+	objMap.put(ENDTIME_PARAM, endTime);
+	objMap.put(UPDATETIME_PARAM, updateTime);
+	objMap.put(TYPE_PARAM, type);
+
+	if (inNodes != null && !inNodes.isEmpty()) {
+	    objMap.put(INNODES_PARAM, inNodes);
+	}
+	if (outNodes != null && !outNodes.isEmpty()) {
+	    objMap.put(OUTNODES_PARAM, outNodes);
+	}
+    }
+
     public String getNodename() {
-        return nodename;
+	return nodename;
     }
 
     public void setNodename(String nodename) {
-        this.nodename = nodename;
+	this.nodename = nodename;
     }
 
     public String getType() {
-        return type;
+	return type;
     }
 
     public void setType(String type) {
-        this.type = type;
+	this.type = type;
     }
 
     public Status getStatus() {
-        return status;
+	return status;
     }
 
     public void setStatus(Status status) {
-        this.status = status;
+	this.status = status;
     }
 
     public long getStartTime() {
-        return startTime;
+	return startTime;
     }
 
     public void setStartTime(long startTime) {
-        this.startTime = startTime;
+	this.startTime = startTime;
     }
 
     public long getEndTime() {
-        return endTime;
+	return endTime;
     }
 
     public void setEndTime(long endTime) {
-        this.endTime = endTime;
+	this.endTime = endTime;
     }
 
     public long getUpdateTime() {
-        return updateTime;
+	return updateTime;
     }
 
     public void setUpdateTime(long updateTime) {
-        this.updateTime = updateTime;
+	this.updateTime = updateTime;
     }
 
     public String getJobSource() {
-        return jobSource;
+	return jobSource;
     }
 
     public void setJobSource(String jobSource) {
-        this.jobSource = jobSource;
+	this.jobSource = jobSource;
     }
 
     public String getPropsSource() {
-        return propsSource;
+	return propsSource;
     }
 
     public void setPropsSource(String propsSource) {
-        this.propsSource = propsSource;
+	this.propsSource = propsSource;
     }
 
     public Set<String> getInNodes() {
-        return inNodes;
+	return inNodes;
     }
 
     public void setInNodes(Set<String> inNodes) {
-        this.inNodes = inNodes;
+	this.inNodes = inNodes;
     }
 
     public Set<String> getOutNodes() {
-        return outNodes;
+	return outNodes;
     }
 
     public void setOutNodes(Set<String> outNodes) {
-        this.outNodes = outNodes;
+	this.outNodes = outNodes;
     }
 
     public ExecutableFlowBase getParentFlow() {
-        return parentFlow;
+	return parentFlow;
     }
 
     public void setParentFlow(ExecutableFlowBase parentFlow) {
-        this.parentFlow = parentFlow;
+	this.parentFlow = parentFlow;
     }
 
-    
-    
 }

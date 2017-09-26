@@ -7,7 +7,9 @@ package org.azkaban.common.executor;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.EmptyStackException;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.ResultSetHandler;
@@ -63,7 +65,7 @@ public class JdbcExecutorLoader implements ExecutorLoader{
 		    int exec_id = rs.getInt(1);
 		    byte[] data = rs.getBytes(2);
 		    if(data!=null){
-			Object dataObj = JSONObject.
+			
 		    }
 		    
 
@@ -71,5 +73,26 @@ public class JdbcExecutorLoader implements ExecutorLoader{
 	    return null;
 	}
     
+    }
+
+
+    /* (非 Javadoc) 
+    * <p>Title: updateExecutableFlow</p> 
+    * <p>Description: </p> 
+    * @param time
+    * @throws Exception 
+    * @see org.azkaban.common.executor.ExecutorLoader#updateExecutableFlow(long) 
+    */
+    public void updateExecutableFlow(ExecutableFlow flow) throws Exception {
+	// TODO Auto-generated method stub
+	QueryRunner runner = datasource.getRunner();
+	final String UPDATE_EXECUTABLE_FLOW_DATA="UPDATE execution_flows "
+	            + "SET status=?,update_time=?,start_time=?,end_time=?,flow_data=? "
+	            + "WHERE exec_id=?";
+	Map<String, Object> maps =flow.toObject();
+	int result = runner.update(UPDATE_EXECUTABLE_FLOW_DATA,  flow.getStatus().getNumVal(), flow.getUpdateTime(), flow.getStartTime(), flow.getEndTime(), JSONObject.toJSON(maps), flow.getExecutionId());
+	if(result ==0){
+	    throw new Exception();
+	}
     }
 }
