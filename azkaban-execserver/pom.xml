@@ -10,7 +10,6 @@
 	</parent>
 	<groupId>azkaban-master</groupId>
 	<artifactId>azkaban-execserver</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
 	<name>azkaban-execserver</name>
 	<url>http://maven.apache.org</url>
 	<properties>

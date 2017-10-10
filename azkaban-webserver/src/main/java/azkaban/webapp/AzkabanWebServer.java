@@ -9,7 +9,7 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.webapp.WebAppContext;
 
-import azkaban.webapp.servlet.AzkabanServlet;
+import azkaban.webapp.servlet.ExecutorServlet;
 
 /**
  * @author zmm
@@ -25,7 +25,7 @@ public class AzkabanWebServer {
 		ServletContextHandler root = new ServletContextHandler(ServletContextHandler.SESSIONS);
 		root.setContextPath("/index");
 		root.setResourceBase(staticDir);
-		root.addServlet(new ServletHolder(new AzkabanServlet()), "/index");
+		root.addServlet(new ServletHolder(new ExecutorServlet()), "/index");
 		server.setHandler(root);
 	}
 

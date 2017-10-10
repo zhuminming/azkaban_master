@@ -41,12 +41,12 @@ public class JobTypeManager {
 	plugins.addPluginClass("command", ProcessJob.class);
     }
 
-    public Job buildJobExecutor(int jobId,Props jobProps) {
+    public Job buildJobExecutor(String jobId,Props jobProps) {
 	final JobTypePluginSet pluginSet = getJobTypePluginSet();
 	String jobType = jobProps.getString("type");
 	Class<? extends Object> executorClass = pluginSet.getPluginClass(jobType);
-	Job job = (Job) Utils.callConstructor(executorClass, jobId, null,
-	              jobProps, logger);
+	Job job = (Job) Utils.callConstructor(executorClass, jobId, null,jobProps, logger);
+	return job;
     }
 
     private JobTypePluginSet getJobTypePluginSet() {

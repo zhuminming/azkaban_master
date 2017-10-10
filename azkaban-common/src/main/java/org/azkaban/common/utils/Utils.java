@@ -34,6 +34,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.io.IOUtils;
 import org.joda.time.Days;
 import org.joda.time.DurationFieldType;
@@ -90,5 +92,21 @@ public class Utils {
 	    // TODO Auto-generated catch block
 	    throw new IllegalStateException(e);
 	}
+    }
+
+    /** 
+    * @Title: nonNull 
+    * @Description: TODO 
+    * @param @param request
+    * @param @return  
+    * @return HttpServletRequest
+    * @throws 
+    */
+    public static <T> T nonNull(T t) {
+      if (t == null) {
+        throw new IllegalArgumentException("Null value not allowed.");
+      } else {
+        return t;
+      }
     }
 }

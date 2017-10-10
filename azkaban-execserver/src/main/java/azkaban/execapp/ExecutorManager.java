@@ -73,7 +73,7 @@ public class ExecutorManager {
 	    throw new Exception("Error loading flow with exec " + execid);
 	}
 	setupFlow(flow);
-	FlowRunner runner = new FlowRunner(flow ,executorLoader,projectLoader);
+	FlowRunner runner = new FlowRunner(flow ,executorLoader,projectLoader,null);
 	if(runningFlows.containsKey(execid)){
 	    throw new Exception("Execution " + execid + " is already running.");
 	}

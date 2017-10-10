@@ -1,7 +1,6 @@
 package azkaban.execapp;
 
 import java.io.IOException;
-import java.util.EmptyStackException;
 import java.util.Map;
 
 import javax.servlet.ServletConfig;
@@ -11,7 +10,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
-import org.apache.log4j.spi.LoggerFactory;
 import org.azkaban.common.executor.ConnectorParams;
 
 import com.alibaba.fastjson.JSONObject;
@@ -19,7 +17,10 @@ import com.google.common.collect.Maps;
 
 public class ExecutorServlet extends HttpServlet implements ConnectorParams {
 
-    private static final long serialVersionUID = 1L;
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -8247820901136364263L;
     private static final Logger logger = Logger.getLogger(ExecutorServlet.class);
     private AzkabanExecutorServer application;
     private ExecutorManager execmanager;
@@ -77,6 +78,11 @@ public class ExecutorServlet extends HttpServlet implements ConnectorParams {
     
     
     private void handleAjaxExecute(HttpServletRequest req ,Map<String, Object> respMap,int execid){
-	execmanager.submitFlow(execid);
+	try {
+	    execmanager.submitFlow(execid);
+	} catch (Exception e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	}
     }
 }

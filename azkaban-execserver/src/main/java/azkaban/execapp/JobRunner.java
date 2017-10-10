@@ -33,6 +33,7 @@ public class JobRunner implements Runnable{
     private int executionId = -1;
     private String jobId;
     private JobTypeManager jobtypeManager;
+    private Props props;
 
     public JobRunner(ExecutableNode node, File workingDir, ExecutorLoader loader,
 	      JobTypeManager jobtypeManager) {
@@ -58,8 +59,13 @@ public class JobRunner implements Runnable{
     }
     
     private void runjob(){
-	this.job = jobtypeManager.buildJobExecutor(jobId);
-	this.job.run();
+	this.job = jobtypeManager.buildJobExecutor(jobId,props);
+	try {
+	    this.job.run();
+	} catch (Exception e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	}
     }
 
 }

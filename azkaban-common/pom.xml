@@ -48,5 +48,10 @@
 			<artifactId>jopt-simple</artifactId>
 			<version>${jopt-simple.version}</version>
 		</dependency>
+<!-- 		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpcomponents-client</artifactId>
+			<version>${http.version}</version>
+		</dependency> -->
 	</dependencies>
 </project>

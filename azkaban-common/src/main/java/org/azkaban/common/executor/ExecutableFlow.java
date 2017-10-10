@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.azkaban.common.flow.Flow;
+import org.azkaban.common.project.Project;
 import org.azkaban.common.utils.TypedMapWrapper;
 
 import com.alibaba.fastjson.JSON;
@@ -30,18 +32,24 @@ public class ExecutableFlow extends ExecutableFlowBase {
     public static final String PROXYUSERS_PARAM = "proxyUsers";
     public static final String PROJECTNAME_PARAM = "projectName";
     public static final String LASTMODIFIEDTIME_PARAM = "lastModfiedTime";
-    public static final String LASTMODIFIEDUSER_PARAM = "lastModifiedUser";
     private int executionId = -1;
     private int scheduleId = -1;
     private int projectId;
     private String projectName;
-    private String lastModifiedUser;
     private int version;
     private Status status = Status.READY;
     private long submitTime = -1;
     private long lastModifiedTimestamp;
     private String submitUser;
     private String executionPath;
+    
+    public ExecutableFlow(){}
+    public ExecutableFlow(Project project,Flow flow){
+	this.projectId = project.getId();
+	this.projectName = project.getName();
+	this.version = project.getVersion();
+	this.lastModifiedTimestamp = project.getLastModifiedTimestamp();
+    }
 
     public static ExecutableFlow createExecutableFlowFromJson(String json) {
 	Map<String, Object> flowObj = JSONObject.parseObject(json, Map.class);
@@ -61,7 +69,6 @@ public class ExecutableFlow extends ExecutableFlowBase {
 	this.projectName = mapWrapper.getString(PROJECTNAME_PARAM);
 	this.version = mapWrapper.getInt(VERSION_PARAM);
 	this.lastModifiedTimestamp = mapWrapper.getLong(LASTMODIFIEDTIME_PARAM);
-	this.lastModifiedUser = mapWrapper.getString(LASTMODIFIEDUSER_PARAM);
 	this.submitTime = mapWrapper.getLong(SUBMITTIME_PARAM);
     }
 
@@ -82,7 +89,6 @@ public class ExecutableFlow extends ExecutableFlowBase {
       flowObj.put(SUBMITUSER_PARAM, submitUser);
       flowObj.put(VERSION_PARAM, version);
       flowObj.put(LASTMODIFIEDTIME_PARAM, lastModifiedTimestamp);
-      flowObj.put(LASTMODIFIEDUSER_PARAM, lastModifiedUser);
 
       flowObj.put(VERSION_PARAM, version);
 
@@ -123,13 +129,6 @@ public class ExecutableFlow extends ExecutableFlowBase {
         this.projectName = projectName;
     }
 
-    public String getLastModifiedUser() {
-        return lastModifiedUser;
-    }
-
-    public void setLastModifiedUser(String lastModifiedUser) {
-        this.lastModifiedUser = lastModifiedUser;
-    }
 
     public int getVersion() {
         return version;
