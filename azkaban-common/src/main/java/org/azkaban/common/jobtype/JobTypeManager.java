@@ -25,8 +25,7 @@ public class JobTypeManager {
     private final static Logger logger = Logger.getLogger(JobTypeManager.class);
     private JobTypePluginSet pluginSet;
 
-    public JobTypeManager(String jobtypePluginDir, Props globalProperties,
-	    ClassLoader parentClassLoader) {
+    public JobTypeManager() {
 	loadPlugins();
     }
 

@@ -20,6 +20,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.log4j.Logger;
 import org.azkaban.common.executor.ExecutableFlow;
 import org.azkaban.common.executor.ExecutorLoader;
+import org.azkaban.common.jobtype.JobTypeManager;
 import org.azkaban.common.project.ProjectLoader;
 import org.azkaban.common.utils.Props;
 
@@ -32,19 +33,20 @@ import com.google.common.collect.Maps;
  * @date 2017年9月21日 下午10:31:05 
  *  
  */
-public class ExecutorManager {
-    private static final Logger logger = Logger.getLogger(ExecutorManager.class);
+public class FlowRunnerManager {
+    private static final Logger logger = Logger.getLogger(FlowRunnerManager.class);
     private Props props;
     private ExecutorLoader executorLoader;
     private ProjectLoader projectLoader;
     private File executionDirectory;
     private File projectDirectory;
     private ExecutorService executorService;
+    private JobTypeManager jobtypeManager;
     private Map<Future<?>, Integer> submittedFlows =Maps.newHashMap();
 
     private Map<Integer, FlowRunner> runningFlows =Maps.newHashMap();
     
-    public ExecutorManager(Props props ,ExecutorLoader executorLoader,ProjectLoader projectLoader){
+    public FlowRunnerManager(Props props ,ExecutorLoader executorLoader,ProjectLoader projectLoader){
 	this.props = props;
 	this.executorLoader = executorLoader;
 	this.projectLoader = projectLoader;
@@ -52,6 +54,8 @@ public class ExecutorManager {
 	this.projectDirectory = new File(props.getString("azkaban.project.dir", "project"));
 
 	this.executorService = Executors.newFixedThreadPool(10);
+	
+	this.jobtypeManager = new JobTypeManager();
     }
 
 
@@ -73,7 +77,7 @@ public class ExecutorManager {
 	    throw new Exception("Error loading flow with exec " + execid);
 	}
 	setupFlow(flow);
-	FlowRunner runner = new FlowRunner(flow ,executorLoader,projectLoader,null);
+	FlowRunner runner = new FlowRunner(flow, executorLoader, projectLoader, jobtypeManager);
 	if(runningFlows.containsKey(execid)){
 	    throw new Exception("Execution " + execid + " is already running.");
 	}

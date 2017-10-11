@@ -17,13 +17,10 @@ import com.google.common.collect.Maps;
 
 public class ExecutorServlet extends HttpServlet implements ConnectorParams {
 
-    /**
-     * 
-     */
     private static final long serialVersionUID = -8247820901136364263L;
     private static final Logger logger = Logger.getLogger(ExecutorServlet.class);
     private AzkabanExecutorServer application;
-    private ExecutorManager execmanager;
+    private FlowRunnerManager execmanager;
     private static final String AZKABAN_SERVLET_CONTEXT_KEY = "azkaban_app";
     private static final String JSON_MIME_TYPE = "application/json";
     public ExecutorServlet() {
