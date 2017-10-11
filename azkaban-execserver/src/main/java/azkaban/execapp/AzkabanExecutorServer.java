@@ -10,7 +10,7 @@ import org.mortbay.jetty.servlet.ServletHolder;
 
 public class AzkabanExecutorServer {
     private Server server;
-    private FlowRunnerManager execmanager;
+    private FlowRunnerManager flowRunnerManager;
     private Props props;
     private ExecutorLoader executorLoader;
     private ProjectLoader projectLoader;
@@ -18,7 +18,7 @@ public class AzkabanExecutorServer {
     public AzkabanExecutorServer(Props props) {
 	this.server = new Server();
 	this.executorLoader= createExecutorLoadr(props);
-	execmanager = new FlowRunnerManager(props, executorLoader, projectLoader);
+	flowRunnerManager = new FlowRunnerManager(props, executorLoader, projectLoader);
     }
 
     public static void main(String[] args) throws Exception {
@@ -32,12 +32,12 @@ public class AzkabanExecutorServer {
 	return new JdbcExecutorLoader(props);
     }
     
-    public FlowRunnerManager getExecmanager() {
-        return execmanager;
+    public FlowRunnerManager getFlowRunnerManager() {
+        return flowRunnerManager;
     }
 
-    public void setExecmanager(FlowRunnerManager execmanager) {
-        this.execmanager = execmanager;
+    public void setFlowRunnerManager(FlowRunnerManager flowRunnerManager) {
+        this.flowRunnerManager = flowRunnerManager;
     }
 
 }

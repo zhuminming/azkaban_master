@@ -13,9 +13,6 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 import org.azkaban.common.executor.ExecutableFlow;
@@ -68,21 +65,26 @@ public class FlowRunnerManager {
     */
     public void submitFlow(int execid) throws Exception {
 	// TODO Auto-generated method stub
+	//判断execid是否已经执行
 	if(runningFlows.containsKey(execid)){
 	    throw new Exception("Execution " + execid+ " is already running.");
 	}
 	
+	//通过execid从execution_flows表中获取可执行的flow
 	ExecutableFlow flow = executorLoader.fetchExecutableFlow(execid);
 	if(flow ==null){
 	    throw new Exception("Error loading flow with exec " + execid);
 	}
 	setupFlow(flow);
+	//初始化FlowRunner线程，用于
 	FlowRunner runner = new FlowRunner(flow, executorLoader, projectLoader, jobtypeManager);
 	if(runningFlows.containsKey(execid)){
 	    throw new Exception("Execution " + execid + " is already running.");
 	}
+	//将FlowRuuner对象插入Map中
 	runningFlows.put(execid, runner);
 	
+	//加入线程池队列中
 	Future<?> future = executorService.submit(runner);
 	submittedFlows.put(future,runner.getExecId());
 	

@@ -20,7 +20,7 @@ public class ExecutorServlet extends HttpServlet implements ConnectorParams {
     private static final long serialVersionUID = -8247820901136364263L;
     private static final Logger logger = Logger.getLogger(ExecutorServlet.class);
     private AzkabanExecutorServer application;
-    private FlowRunnerManager execmanager;
+    private FlowRunnerManager flowRunnerManager;
     private static final String AZKABAN_SERVLET_CONTEXT_KEY = "azkaban_app";
     private static final String JSON_MIME_TYPE = "application/json";
     public ExecutorServlet() {
@@ -36,9 +36,33 @@ public class ExecutorServlet extends HttpServlet implements ConnectorParams {
 		    "No batch application is defined in the servlet context!");
 	}
 	
-	execmanager=application.getExecmanager();
+	flowRunnerManager=application.getFlowRunnerManager();
     }
 
+    @Override
+    public void doGet(HttpServletRequest req, HttpServletResponse resp)
+	    throws ServletException, IOException {
+	Map<String, Object> respMap = Maps.newHashMap();
+	if(hasParam(req, ACTION_PARAM)){
+	    String action = getParam(req, ACTION_PARAM);
+	    int execid = Integer.parseInt(getParam(req, EXECID_PARAM));
+	    if(action.equals(EXECUTE_ACTION)){
+		handleAjaxExecute(req, respMap, execid);
+	    }
+	}
+	writeJson(resp,respMap);
+    }
+    
+    private void handleAjaxExecute(HttpServletRequest req ,Map<String, Object> respMap,int execid){
+	try {
+	    //提交可执行flow
+	    flowRunnerManager.submitFlow(execid);
+	} catch (Exception e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	}
+    }
+    
     private void writeJson(HttpServletResponse resp, Object obj)
 	    throws IOException {
 	resp.setContentType(JSON_MIME_TYPE);
@@ -56,30 +80,5 @@ public class ExecutorServlet extends HttpServlet implements ConnectorParams {
 	    throw new ServletException("Missing required parameter '" + param + "'.");
 	else
 	    return p;
-
-    }
-
-    @Override
-    public void doGet(HttpServletRequest req, HttpServletResponse resp)
-	    throws ServletException, IOException {
-	Map<String, Object> respMap = Maps.newHashMap();
-	if(hasParam(req, ACTION_PARAM)){
-	    String action = getParam(req, ACTION_PARAM);
-	    int execid = Integer.parseInt(getParam(req, EXECID_PARAM));
-	    if(action.equals(EXECUTE_ACTION)){
-		handleAjaxExecute(req, respMap, execid);
-	    }
-	}
-	writeJson(resp,respMap);
-    }
-    
-    
-    private void handleAjaxExecute(HttpServletRequest req ,Map<String, Object> respMap,int execid){
-	try {
-	    execmanager.submitFlow(execid);
-	} catch (Exception e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
-	}
     }
 }

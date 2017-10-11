@@ -59,13 +59,14 @@ public class JobRunner implements Runnable{
     }
     
     private void runjob(){
+	//建立一个作业
 	this.job = jobtypeManager.buildJobExecutor(jobId,props);
 	try {
+	    //执行作业
 	    this.job.run();
 	} catch (Exception e) {
 	    // TODO Auto-generated catch block
 	    e.printStackTrace();
 	}
     }
-
 }

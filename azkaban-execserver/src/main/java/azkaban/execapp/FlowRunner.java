@@ -68,8 +68,10 @@ public class FlowRunner implements Runnable {
 	if (executorService == null) {
 	    executorService = Executors.newFixedThreadPool(10);
 	}
+	//更新flow状态
 	updateflow();
 	try {
+	    //执行flow
 	    runflow();
 	} catch (IOException e) {
 	    // TODO Auto-generated catch block
@@ -91,6 +93,7 @@ public class FlowRunner implements Runnable {
 
     private void runExecutableNode(ExecutableNode node) throws IOException {
 	node.setStatus(Status.QUEUED);
+	//实例化JobRunner对象，用于执行每个flow任务中的单个Job任务
 	JobRunner runner = createJobRunner(node);
 	executorService.submit(runner);
 	activeJobRunners.add(runner);
@@ -106,6 +109,7 @@ public class FlowRunner implements Runnable {
 	updateFlow(System.currentTimeMillis());
     }
 
+    
     private synchronized void updateFlow(long time) {
 	flow.setUpdateTime(time);
 	try {
