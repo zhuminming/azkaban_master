@@ -17,7 +17,9 @@ import java.util.concurrent.Future;
 import org.apache.log4j.Logger;
 import org.azkaban.common.executor.ExecutableFlow;
 import org.azkaban.common.executor.ExecutorLoader;
+import org.azkaban.common.executor.JdbcExecutorLoader;
 import org.azkaban.common.jobtype.JobTypeManager;
+import org.azkaban.common.project.JdbcProjectLoador;
 import org.azkaban.common.project.ProjectLoader;
 import org.azkaban.common.utils.Props;
 
@@ -109,6 +111,18 @@ public class FlowRunnerManager {
 	    projectPath.mkdirs();
 	}
 	
+    }
+    
+    public static void main(String[] args) throws Exception{
+	String path = "E:/workspace/azkaban-master/azkaban/azkaban-execserver/src/main/resources/azkaban.properties";
+	System.out.println(path);
+	File file = new File(path);
+	Props props = new Props(null,file);
+	
+	ProjectLoader projectLoader = new JdbcProjectLoador(props);
+	ExecutorLoader executorLoader =new JdbcExecutorLoader(props);
+	FlowRunnerManager flowRunner = new FlowRunnerManager(props, executorLoader, projectLoader);
+	flowRunner.submitFlow(3);
     }
     
 }

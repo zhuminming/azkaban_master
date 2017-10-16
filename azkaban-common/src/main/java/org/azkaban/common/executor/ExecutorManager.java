@@ -8,8 +8,13 @@
  */
 package org.azkaban.common.executor;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Map;
+
+import org.azkaban.common.flow.Flow;
+import org.azkaban.common.project.Project;
+import org.azkaban.common.utils.Props;
 
 /**
  * @ClassName: ExecutorManager
@@ -20,6 +25,9 @@ import java.util.Map;
  */
 public class ExecutorManager {
     private ExecutorLoader executorLoader;
+    public ExecutorManager(Props props){
+	executorLoader = new JdbcExecutorLoader(props);
+    }
 
     public String submitExecutableFlow(ExecutableFlow exflow) {
 	try {
@@ -31,5 +39,16 @@ public class ExecutorManager {
 	return null;
     }
 
+    public static void main(String[] args){
+	Flow flow =new Flow("flow1");
+	Project project = new Project(1, "project1");
+	ExecutableFlow exflow = new ExecutableFlow(project,flow);
+	String path = "E:/workspace/azkaban-master/azkaban/azkaban-execserver/src/main/resources/azkaban.properties";
+	File file = new File(path);
+	Props props = new Props(null,file);
+	ExecutorManager executorManager = new ExecutorManager(props);
+	executorManager.submitExecutableFlow(exflow);
+	
+    }
 
 }

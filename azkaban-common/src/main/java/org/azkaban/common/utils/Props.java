@@ -39,95 +39,96 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 public class Props {
-	private final Map<String, String> _current;
-	private Props _parent;
-	private String source = null;
+    private final Map<String, String> _current;
+    private Props _parent;
+    private String source = null;
 
-	/**
-	 * Constructor for empty props with empty parent.
-	 */
-	public Props() {
-		this(null);
-	}
+    /**
+     * Constructor for empty props with empty parent.
+     */
+    public Props() {
+	this(null);
+    }
 
-	/**
-	 * Constructor for empty Props with parent override.
-	 *
-	 * @param parent
-	 */
-	public Props(Props parent) {
-		this._current = new HashMap<String, String>();
-		this._parent = parent;
-	}
-	
-	public Props(Props parent,File file){
-		this(parent);
-		setSource(file.getPath());
-		try {
-			InputStream input = new BufferedInputStream(new FileInputStream(file)) ;
-			Properties propertie = new Properties();
-			propertie.load(input);
-			for(String proName : propertie.stringPropertyNames()){
-				_current.put(proName, propertie.getProperty(proName));
-			}
-			
+    /**
+     * Constructor for empty Props with parent override.
+     *
+     * @param parent
+     */
+    public Props(Props parent) {
+	this._current = new HashMap<String, String>();
+	this._parent = parent;
+    }
 
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
-	public Props(Props parent,String filePath){
-		this(parent,new File(filePath));
-	}
+    public Props(Props parent, File file) {
+	this(parent);
+	setSource(file.getPath());
+	try {
+	    InputStream input = new BufferedInputStream(new FileInputStream(
+		    file));
+	    Properties propertie = new Properties();
+	    propertie.load(input);
+	    for (String proName : propertie.stringPropertyNames()) {
+		_current.put(proName, propertie.getProperty(proName));
+	    }
 
-	public Props get_parent() {
-		return _parent;
+	} catch (Exception e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
 	}
+    }
 
-	public void set_parent(Props _parent) {
-		this._parent = _parent;
-	}
+    public Props(Props parent, String filePath) {
+	this(parent, new File(filePath));
+    }
 
-	public String getSource() {
-		return source;
-	}
+    public Props get_parent() {
+	return _parent;
+    }
 
-	public void setSource(String source) {
-		this.source = source;
-	}
+    public void set_parent(Props _parent) {
+	this._parent = _parent;
+    }
 
-	public Map<String, String> get_current() {
-		return _current;
+    public String getSource() {
+	return source;
+    }
+
+    public void setSource(String source) {
+	this.source = source;
+    }
+
+    public Map<String, String> get_current() {
+	return _current;
+    }
+
+    public String getString(String key) {
+	return get(key);
+    }
+
+    public String getString(String key, String defalutValue) {
+	if (containsKey(key)) {
+	    return get(key);
 	}
-	
-	public String getString(String key){
-		return get(key);
+	return defalutValue;
+    }
+
+    public Integer getInt(String key) {
+	return get(key) == null ? -1 : Integer.parseInt(get(key));
+    }
+
+    private String get(Object key) {
+	if (_current.containsKey(key)) {
+	    return _current.get(key);
+	} else if (_parent != null) {
+	    return _parent.get(key);
+	} else {
+	    return null;
 	}
-	
-	public String getString(String key,String defalutValue){
-		if(containsKey(key)){
-			return get(key);
-		}
-		return defalutValue;
-	}
-	
-	public Integer getInt(String key){
-		return get(key)==null?-1:Integer.parseInt(get(key));
-	}
-	
-	private String get(Object key){
-		if(_current.containsKey(key)){
-			return _current.get(key);
-		}else if(_parent!=null){
-			return _parent.get(key);
-		}else{
-			return null;
-		}
-	}
-	
-	public boolean containsKey(Object key){
-		return _current.containsKey(key)||(_parent!=null&&_parent.containsKey(key));
-	}
+    }
+
+    public boolean containsKey(Object key) {
+	return _current.containsKey(key)
+		|| (_parent != null && _parent.containsKey(key));
+    }
 }
