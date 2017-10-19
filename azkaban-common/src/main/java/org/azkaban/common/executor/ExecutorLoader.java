@@ -12,4 +12,5 @@ package org.azkaban.common.executor;
 public interface ExecutorLoader {
     public ExecutableFlow fetchExecutableFlow(int execid) throws Exception;
     public void updateExecutableFlow(ExecutableFlow flow) throws Exception;
+    public void uploadExecutableFlow(ExecutableFlow flow) throws Exception;
 }

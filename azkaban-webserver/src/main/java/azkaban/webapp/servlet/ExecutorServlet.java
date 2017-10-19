@@ -49,8 +49,7 @@ public class ExecutorServlet extends AbstractAzkabanServlet {
 	}
     }
 
-    private void ajaxAttemptExecuteFlow(HttpServletRequest request,
-	    HttpServletResponse response, HashMap<String, Object> ret) {
+    private void ajaxAttemptExecuteFlow(HttpServletRequest request,HttpServletResponse response, HashMap<String, Object> ret) {
 	ExecutableFlow exeFlow = new ExecutableFlow();
 	executorManager.submitExecutableFlow(exeFlow);
 

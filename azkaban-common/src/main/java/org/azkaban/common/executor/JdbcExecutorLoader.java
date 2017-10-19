@@ -118,6 +118,19 @@ public class JdbcExecutorLoader implements ExecutorLoader {
 	}catch(Exception e){
 	   throw new Exception("Error updating flow.", e);
 	}
-	
+    }
+    
+    public void uploadExecutableFlow(ExecutableFlow flow){
+	QueryRunner runner = datasource.getRunner();
+	final String INSERT_EXECUTABLE_FLOW_DATA="INSERT INTO execution_flows "
+            + "(project_id, version, flow_id, status, submit_user, submit_time, update_time) "
+            + "values (?,?,?,?,?,?,?)";
+	long submitTime = System.currentTimeMillis();
+	try {
+	    runner.update(INSERT_EXECUTABLE_FLOW_DATA, flow.getProjectId(),flow.getVersion(),flow.getFlow_name(),Status.PREPARING.getNumVal(),flow.getSubmitUser(),submitTime,submitTime);
+	} catch (SQLException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	}
     }
 }

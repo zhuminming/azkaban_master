@@ -31,7 +31,7 @@ public class ExecutorManager {
 
     public String submitExecutableFlow(ExecutableFlow exflow) {
 	try {
-	    executorLoader.updateExecutableFlow(exflow);
+	    executorLoader.uploadExecutableFlow(exflow);
 	} catch (Exception e) {
 	    // TODO Auto-generated catch block
 	    e.printStackTrace();
