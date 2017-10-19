@@ -48,7 +48,7 @@ public class ExecutableFlow extends ExecutableFlowBase {
 	this.projectId = project.getId();
 	this.projectName = project.getName();
 	this.version = project.getVersion();
-	this.lastModifiedTimestamp = project.getLastModifiedTimestamp();
+	this.lastModifiedTimestamp = project.getModified_time();
     }
 
     public static ExecutableFlow createExecutableFlowFromJson(String json) {

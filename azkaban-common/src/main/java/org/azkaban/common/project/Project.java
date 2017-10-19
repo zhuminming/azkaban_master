@@ -10,67 +10,73 @@ package org.azkaban.common.project;
  *
  */
 public class Project {
-	private final int id;
-	private final String name;
+	private int id;
+	private String name;
 	private boolean active = true;
 	private int version = -1;
-	private long createTimestamp;
-	private long lastModifiedTimestamp;
-	private String lastModeifiedUser;
+	private long create_time;
+	private long Modified_time;
+	private String last_modeified_by;
 	
 	public Project(int id , String name){
 		this.id = id;
 		this.name = name;
 	}
 
-	public boolean isActive() {
-		return active;
-	}
-
-	public void setActive(boolean active) {
-		this.active = active;
-	}
-
-	public int getVersion() {
-		return version;
-	}
-
-	public void setVersion(int version) {
-		this.version = version;
-	}
-
-	public long getCreateTimestamp() {
-		return createTimestamp;
-	}
-
-	public void setCreateTimestamp(long createTimestamp) {
-		this.createTimestamp = createTimestamp;
-	}
-
-	public long getLastModifiedTimestamp() {
-		return lastModifiedTimestamp;
-	}
-
-	public void setLastModifiedTimestamp(long lastModifiedTimestamp) {
-		this.lastModifiedTimestamp = lastModifiedTimestamp;
-	}
-
 	public int getId() {
-		return id;
+	    return id;
+	}
+
+	public void setId(int id) {
+	    this.id = id;
 	}
 
 	public String getName() {
-		return name;
+	    return name;
 	}
 
-	public String getLastModeifiedUser() {
-		return lastModeifiedUser;
+	public void setName(String name) {
+	    this.name = name;
 	}
 
-	public void setLastModeifiedUser(String lastModeifiedUser) {
-		this.lastModeifiedUser = lastModeifiedUser;
+	public boolean isActive() {
+	    return active;
 	}
-	
-	
+
+	public void setActive(boolean active) {
+	    this.active = active;
+	}
+
+	public int getVersion() {
+	    return version;
+	}
+
+	public void setVersion(int version) {
+	    this.version = version;
+	}
+
+	public long getCreate_time() {
+	    return create_time;
+	}
+
+	public void setCreate_time(long create_time) {
+	    this.create_time = create_time;
+	}
+
+	public long getModified_time() {
+	    return Modified_time;
+	}
+
+	public void setModified_time(long modified_time) {
+	    Modified_time = modified_time;
+	}
+
+	public String getLast_modeified_by() {
+	    return last_modeified_by;
+	}
+
+	public void setLast_modeified_by(String last_modeified_by) {
+	    this.last_modeified_by = last_modeified_by;
+	}
 
 }

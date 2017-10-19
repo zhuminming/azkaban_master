@@ -8,9 +8,14 @@
 */
 package org.azkaban.project;
 
+import java.util.List;
+
+import org.apache.commons.dbutils.QueryRunner;
+import org.apache.commons.dbutils.handlers.BeanListHandler;
 import org.azkaban.common.executor.ExecutorLoader;
 import org.azkaban.common.executor.JdbcExecutorLoader;
 import org.azkaban.common.project.JdbcProjectLoador;
+import org.azkaban.common.project.Project;
 import org.azkaban.common.project.ProjectLoader;
 import org.azkaban.common.utils.Props;
 
@@ -27,11 +32,10 @@ public class JdbcProjectLoaderTest {
 	Props props = new Props(null, filePath);
 	ProjectLoader loador = new JdbcProjectLoador(props);
 	try {
-	    loador.createNewProject("project1");
+	    loador.createNewProject("project2");
 	} catch (Exception e) {
 	    // TODO Auto-generated catch block
 	    e.printStackTrace();
 	}
     }
-
 }

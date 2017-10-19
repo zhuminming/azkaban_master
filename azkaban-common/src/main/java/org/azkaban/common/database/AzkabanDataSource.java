@@ -36,6 +36,12 @@ public class AzkabanDataSource extends BasicDataSource {
 	}
 	return dataSource;
     }
+    
+    public static AzkabanDataSource getDataSource(){
+	String filePath ="E:/workspace/azkaban-master/azkaban/azkaban-execserver/src/main/resources/azkaban.properties";
+	Props props = new Props(null, filePath); 
+	return getDataSource(props);
+    }
 
     public QueryRunner getRunner() {
 	return new QueryRunner(this);
