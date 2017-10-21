@@ -8,6 +8,8 @@
 */
 package org.azkaban.common.project;
 
+import org.azkaban.common.flow.Flow;
+
 /** 
  * @ClassName: ProjectLoader 
  * @Description: TODO
@@ -17,5 +19,7 @@ package org.azkaban.common.project;
  */
 public interface ProjectLoader {
     public Project createNewProject(String projectName) throws Exception;
-
+    public Flow createNewFlow(Flow flow,Project project) throws Exception;
+    public int getLatestProjectVersion(Project project) throws Exception;
+    public Project fetchPoject(String projectName) throws Exception;
 }

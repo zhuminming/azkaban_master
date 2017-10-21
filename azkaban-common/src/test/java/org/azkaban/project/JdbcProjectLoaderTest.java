@@ -14,10 +14,12 @@ import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.handlers.BeanListHandler;
 import org.azkaban.common.executor.ExecutorLoader;
 import org.azkaban.common.executor.JdbcExecutorLoader;
+import org.azkaban.common.flow.Flow;
 import org.azkaban.common.project.JdbcProjectLoador;
 import org.azkaban.common.project.Project;
 import org.azkaban.common.project.ProjectLoader;
 import org.azkaban.common.utils.Props;
+import org.junit.Test;
 
 /** 
  * @ClassName: JdbcProjectLoaderTest 
@@ -27,15 +29,29 @@ import org.azkaban.common.utils.Props;
  *  
  */
 public class JdbcProjectLoaderTest {
-    public static void main(String[] args){
-	String filePath ="E:/workspace/azkaban-master/azkaban/azkaban-execserver/src/main/resources/azkaban.properties";
-	Props props = new Props(null, filePath);
-	ProjectLoader loador = new JdbcProjectLoador(props);
-	try {
-	    loador.createNewProject("project2");
-	} catch (Exception e) {
-	    // TODO Auto-generated catch block
+    private String filePath ="E:/workspace/azkaban-master/azkaban/azkaban-execserver/src/main/resources/azkaban.properties";
+    private Props props = new Props(null, filePath);
+    private ProjectLoader loador = new JdbcProjectLoador(props);
+//    @Test
+//    public void createNewProjectTest(){
+//	try {
+//	    loador.createNewProject("project3");
+//	} catch (Exception e) {
+//	    // TODO Auto-generated catch block
+//	    e.printStackTrace();
+//	}
+//    }
+    
+    @Test
+    public void createNewFlowTest(){
+	try{
+	    String projectName ="project3";
+	    Flow flow = new Flow("flow1");
+	    Project project = loador.fetchPoject(projectName);
+	    loador.createNewFlow(flow,project);
+	}catch(Exception e){
 	    e.printStackTrace();
 	}
     }
+    
 }

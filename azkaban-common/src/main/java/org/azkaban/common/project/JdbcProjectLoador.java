@@ -15,6 +15,10 @@ import java.util.Map;
 
 
 
+
+
+
+
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.ResultSetHandler;
 import org.apache.commons.dbutils.handlers.BeanHandler;
@@ -28,6 +32,7 @@ import org.azkaban.common.utils.Constant;
 import org.azkaban.common.utils.JsonUtils;
 import org.azkaban.common.utils.Props;
 
+import com.alibaba.fastjson.serializer.DateSerializer;
 import com.google.common.collect.Lists;
 
 /**
@@ -47,10 +52,15 @@ public class JdbcProjectLoador implements ProjectLoader {
 	Project project = createNewProject(connection, projectName);
 	return project;
     }
+    
+    public Flow createNewFlow(Flow flow,Project project) throws Exception{
+	Connection connection = getConnection();
+	int version = getLatestProjectVersion(project)+1;
+	return createNewFlow(connection, version, flow, project);
+    }
 
     private Connection getConnection() {
 	Connection connection = null;
-
 	try {
 	    connection = datasource.getConnection();
 	} catch (SQLException e) {
@@ -61,8 +71,7 @@ public class JdbcProjectLoador implements ProjectLoader {
 	return connection;
     }
 
-    private synchronized Project createNewProject(Connection connect,
-	    String projectName) throws Exception {
+    private synchronized Project createNewProject(Connection connect,String projectName) throws Exception {
 	QueryRunner runner = new QueryRunner();
 	if (!getAvailableProjects(connect, projectName).isEmpty()) {
 	    throw new Exception("Active project with name " + projectName + " already exists in db.");
@@ -85,8 +94,7 @@ public class JdbcProjectLoador implements ProjectLoader {
 	return lists.get(0);
     }
 
-    public synchronized void changeProjectVersion(Project project, int version)
-	    throws Exception {
+    public synchronized void changeProjectVersion(Project project, int version) throws Exception {
 	QueryRunner runner = datasource.getRunner();
 	long lastModifiedTimestamp = System.currentTimeMillis();
 	final String UPADTE_PROJECT_VERSION = "UPDATE projects set version=?,modified_time=?,last_modified_by=? WHERE id=? ";
@@ -98,15 +106,13 @@ public class JdbcProjectLoador implements ProjectLoader {
 	}
     }
 
-    public synchronized Flow createNewFlow(Connection connect, int version,
-	    Flow flow, Project project) throws Exception {
+    public synchronized Flow createNewFlow(Connection connect, int version,Flow flow, Project project) throws Exception {
 	QueryRunner runner = new QueryRunner();
 	if (!getAvailableFlows(connect, flow.getFlow_name()).isEmpty()) {
 	    throw new Exception("Active Flow with name " + flow.getFlow_name() + " already exists in db.");
 	}
-	final String INSERT_FLOW = "INSERT INTO project_flows (project_id, version, flow_name, modified_time) values (?,?,?,?)";
-	int result = runner.update(connect, INSERT_FLOW, project.getId(),version, flow.getFlow_name());
-	connect.commit();
+	final String INSERT_FLOW = "INSERT INTO project_flows (project_id, version, flow_id, modified_time) values (?,?,?,?)";
+	int result = runner.update(connect, INSERT_FLOW, project.getId(),version, flow.getFlow_name(),System.currentTimeMillis());
 	if (result == 0) {
 	    throw new Exception();
 	}
@@ -150,8 +156,21 @@ public class JdbcProjectLoador implements ProjectLoader {
 	return node;
     }
 
-    private List<Project> getAvailableProjects(Connection connect,
-	    String projectName) {
+    /* (非 Javadoc) 
+    * <p>Title: getLatestProjectVersion</p> 
+    * <p>Description: </p> 
+    * @param project
+    * @return 
+    * @see org.azkaban.common.project.ProjectLoader#getLatestProjectVersion(org.azkaban.common.project.Project) 
+    */
+    public int getLatestProjectVersion(Project project) throws SQLException {
+	// TODO Auto-generated method stub
+	QueryRunner runner =datasource.getRunner();
+	int vserion = runner.query(IntHander.SELECT_LATEST_VERSION, new IntHander(), project.getName());
+	return vserion;
+    }
+    
+    private List<Project> getAvailableProjects(Connection connect,String projectName) {
 	List<Project> proListsList = Lists.newArrayList();
 	QueryRunner runner = new QueryRunner();
 	ProjectResultHandler handler = new ProjectResultHandler();
@@ -164,25 +183,19 @@ public class JdbcProjectLoador implements ProjectLoader {
 	return proListsList;
     }
 
-    private List<Flow> getAvailableFlows(Connection connect, String flowname)
-	    throws Exception {
+    private List<Flow> getAvailableFlows(Connection connect, String flowname) throws Exception {
 	List<Flow> flowLists = Lists.newArrayList();
 	QueryRunner runner = datasource.getRunner();
 	FlowResultHandler handler = new FlowResultHandler();
-	flowLists = runner.query(connect,
-		FlowResultHandler.SELECT_ACTION_FLOW_BY_PROJECT, handler,
-		flowname);
+	flowLists = runner.query(connect,FlowResultHandler.SELECT_ACTION_FLOW_BY_PROJECT, handler,flowname);
 	return flowLists;
     }
 
-    private List<Node> getAvailableNodes(Connection connect, String nodename)
-	    throws Exception {
+    private List<Node> getAvailableNodes(Connection connect, String nodename) throws Exception {
 	List<Node> nodeLists = Lists.newArrayList();
 	QueryRunner runner = datasource.getRunner();
 	NodeResultHandler handler = new NodeResultHandler();
-	nodeLists = runner.query(connect,
-		NodeResultHandler.SELECT_ACTION_NODE_BY_PROJECT_FLOW, handler,
-		nodename);
+	nodeLists = runner.query(connect,NodeResultHandler.SELECT_ACTION_NODE_BY_PROJECT_FLOW, handler,nodename);
 	return nodeLists;
     }
     
@@ -195,7 +208,7 @@ public class JdbcProjectLoador implements ProjectLoader {
 	    // TODO Auto-generated method stub
 	    List<Project> lists = Lists.newArrayList();
 	    Project project;
-	    while (rs.next()) {
+	    while (rs.next()){
 		final int id = rs.getInt(1);
 		final String projectName = rs.getString(2);
 		final boolean active = rs.getBoolean(3);
@@ -216,7 +229,7 @@ public class JdbcProjectLoador implements ProjectLoader {
     }
 
     private class FlowResultHandler implements ResultSetHandler<List<Flow>> {
-	private static final String SELECT_ACTION_FLOW_BY_PROJECT = "SELECT project_id , version ,flow_name FROM project_flows WHERE  project_id=?";
+	private static final String SELECT_ACTION_FLOW_BY_PROJECT = "SELECT project_id , version ,flow_id FROM project_flows WHERE  project_id=?";
 
 	public List<Flow> handle(ResultSet rs) throws SQLException {
 	    // TODO Auto-generated method stub
@@ -236,9 +249,7 @@ public class JdbcProjectLoador implements ProjectLoader {
     }
 
     private class NodeResultHandler implements ResultSetHandler<List<Node>> {
-
 	private static final String SELECT_ACTION_NODE_BY_PROJECT_FLOW = "";
-
 	public List<Node> handle(ResultSet rs) throws SQLException {
 	    Node node;
 	    List<Node> lists = Lists.newArrayList();
@@ -261,9 +272,53 @@ public class JdbcProjectLoador implements ProjectLoader {
 		    // TODO Auto-generated catch block
 		    e.printStackTrace();
 		}
-
 	    } 
 	    return lists;
 	}
     }
+
+    private class IntHander implements ResultSetHandler<Integer> {
+
+	private static final String SELECT_LATEST_VERSION ="select version from projects where name =?";
+	/* (非 Javadoc) 
+	* <p>Title: handle</p> 
+	* <p>Description: </p> 
+	* @param rs
+	* @return
+	* @throws SQLException 
+	* @see org.apache.commons.dbutils.ResultSetHandler#handle(java.sql.ResultSet) 
+	*/
+	public Integer handle(ResultSet rs) throws SQLException {
+	    // TODO Auto-generated method stub
+	    int version =0;
+	    while(rs.next()){
+		version = rs.getInt(1);
+	    }
+	    return version;
+	}
+	
+    }
+
+    /* (非 Javadoc) 
+    * <p>Title: fetchPoject</p> 
+    * <p>Description: </p> 
+    * @param projectName
+    * @return
+    * @throws Exception 
+    * @see org.azkaban.common.project.ProjectLoader#fetchPoject(java.lang.String) 
+    */
+    public Project fetchPoject(String projectName) throws Exception {
+	// TODO Auto-generated method stub
+	List<Project> proListsList = Lists.newArrayList();
+	QueryRunner runner = datasource.getRunner();
+	ProjectResultHandler handler = new ProjectResultHandler();
+	try {
+	    proListsList = runner.query(ProjectResultHandler.SELECT_ACTIVE_PROJECT_BY_NAME, handler,projectName);
+	} catch (SQLException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	}
+	return proListsList.get(0);
+    }
+
 }
