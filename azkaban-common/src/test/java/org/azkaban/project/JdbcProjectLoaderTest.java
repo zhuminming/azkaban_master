@@ -15,6 +15,7 @@ import org.apache.commons.dbutils.handlers.BeanListHandler;
 import org.azkaban.common.executor.ExecutorLoader;
 import org.azkaban.common.executor.JdbcExecutorLoader;
 import org.azkaban.common.flow.Flow;
+import org.azkaban.common.node.Node;
 import org.azkaban.common.project.JdbcProjectLoador;
 import org.azkaban.common.project.Project;
 import org.azkaban.common.project.ProjectLoader;
@@ -53,5 +54,18 @@ public class JdbcProjectLoaderTest {
 	    e.printStackTrace();
 	}
     }
+    
+//    @Test
+//    public void createNewJobTest(){
+//	try{
+//	    String projectName ="project3";
+//	    Project project = loador.fetchPoject(projectName);
+//	    Flow flow = loador.fetchFlow(project.getId(),"flow1");
+//	    Node node = new Node(project.getId(),flow.getFlow_name(),"node1");
+//	    loador.createNewNode(node, flow, project);
+//	}catch(Exception e){
+//	    e.printStackTrace();
+//	}
+//    }
     
 }

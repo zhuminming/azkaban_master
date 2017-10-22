@@ -9,6 +9,7 @@
 package org.azkaban.common.project;
 
 import org.azkaban.common.flow.Flow;
+import org.azkaban.common.node.Node;
 
 /** 
  * @ClassName: ProjectLoader 
@@ -20,6 +21,13 @@ import org.azkaban.common.flow.Flow;
 public interface ProjectLoader {
     public Project createNewProject(String projectName) throws Exception;
     public Flow createNewFlow(Flow flow,Project project) throws Exception;
+    public Node createNewNode(Node node ,Flow flow,Project project) throws Exception;
     public int getLatestProjectVersion(Project project) throws Exception;
     public Project fetchPoject(String projectName) throws Exception;
+    public Flow fetchFlow(Integer projectId,String flowId) throws Exception;
+    public Node fetchNode(Flow flow,String nodeId) throws Exception;
+    public Project updateProject(Project project) throws Exception;
+    public Flow updateFlow(Flow flow,Project project) throws Exception;
+    public Node updateNode(Node node ,Flow flow,Project project) throws Exception;
+
 }

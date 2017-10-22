@@ -19,6 +19,9 @@ import java.util.Map;
 
 
 
+
+
+
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.ResultSetHandler;
 import org.apache.commons.dbutils.handlers.BeanHandler;
@@ -56,9 +59,27 @@ public class JdbcProjectLoador implements ProjectLoader {
     public Flow createNewFlow(Flow flow,Project project) throws Exception{
 	Connection connection = getConnection();
 	int version = getLatestProjectVersion(project)+1;
+	changeProjectVersion(project, version);
 	return createNewFlow(connection, version, flow, project);
     }
 
+    /* (非 Javadoc) 
+    * <p>Title: createNewNode</p> 
+    * <p>Description: </p> 
+    * @param node
+    * @param flow
+    * @param project
+    * @return
+    * @throws Exception 
+    * @see org.azkaban.common.project.ProjectLoader#createNewNode(org.azkaban.common.node.Node, org.azkaban.common.flow.Flow, org.azkaban.common.project.Project) 
+    */
+    public Node createNewNode(Node node, Flow flow, Project project)
+	    throws Exception {
+	// TODO Auto-generated method stub
+	Connection connection = getConnection();
+	int version = getLatestProjectVersion(project);
+	return createNewNode(connection, flow, node, version);
+    }
     private Connection getConnection() {
 	Connection connection = null;
 	try {
@@ -106,9 +127,9 @@ public class JdbcProjectLoador implements ProjectLoader {
 	}
     }
 
-    public synchronized Flow createNewFlow(Connection connect, int version,Flow flow, Project project) throws Exception {
+    private synchronized Flow createNewFlow(Connection connect, int version,Flow flow, Project project) throws Exception {
 	QueryRunner runner = new QueryRunner();
-	if (!getAvailableFlows(connect, flow.getFlow_name()).isEmpty()) {
+	if (!getAvailableFlows(connect, flow.getFlow_name(),project.getName()).isEmpty()) {
 	    throw new Exception("Active Flow with name " + flow.getFlow_name() + " already exists in db.");
 	}
 	final String INSERT_FLOW = "INSERT INTO project_flows (project_id, version, flow_id, modified_time) values (?,?,?,?)";
@@ -116,7 +137,7 @@ public class JdbcProjectLoador implements ProjectLoader {
 	if (result == 0) {
 	    throw new Exception();
 	}
-	List<Flow> lists = getAvailableFlows(connect, flow.getFlow_name());
+	List<Flow> lists = getAvailableFlows(connect, flow.getFlow_name(),project.getName());
 	if (lists.isEmpty()) {
 	    throw new Exception("Active flow with name " + flow.getFlow_name()+ " is not exists in db.");
 	} else if (lists.size() > 1) {
@@ -134,20 +155,19 @@ public class JdbcProjectLoador implements ProjectLoader {
 	}
     }
 
-    public synchronized Node createNewNode(Connection connect, Project project,Node node, int vesrion) throws Exception {
+    private synchronized Node createNewNode(Connection connect, Flow flow,Node node, int vesrion) throws Exception {
 	QueryRunner runner = datasource.getRunner();
-	if (!getAvailableNodes(connect, node.getNode_name()).isEmpty()) {
+	if (!getAvailableNodes(connect, node.getNode_name(),flow).isEmpty()) {
 	    throw new Exception("Active node with name " + node.getNode_name() + " is not exists in db.");
 	}
-	final String INSERT_NODE = "INSERT INTO project_nodes (project_id, version, flow_name , node_name , modified_time , json) values (?,?,?,?,?,?)";
-	int result = runner.update(connect, INSERT_NODE, project.getId(),
-		node.getLevel(), node.getFlow_name(), node.getNode_name(),
+	final String INSERT_NODE = "INSERT INTO project_nodes (project_id, version, flow_id , job_id , modified_time , json) values (?,?,?,?,?,?)";
+	int result = runner.update(connect, INSERT_NODE, flow.getProject_id(),
+		flow.getVersion(), node.getFlow_name(), node.getNode_name(),
 		System.currentTimeMillis(), JsonUtils.toJSON(node));
-	connect.commit();
 	if (result == 0) {
 	    throw new Exception();
 	}
-	List<Node> lists = getAvailableNodes(connect, node.getNode_name());
+	List<Node> lists = getAvailableNodes(connect, node.getNode_name(),flow);
 	if (lists.isEmpty()) {
 	    throw new Exception("Active node with name " + node.getNode_name()+ " is not exists in db.");
 	} else if (lists.size() > 1) {
@@ -183,19 +203,19 @@ public class JdbcProjectLoador implements ProjectLoader {
 	return proListsList;
     }
 
-    private List<Flow> getAvailableFlows(Connection connect, String flowname) throws Exception {
+    private List<Flow> getAvailableFlows(Connection connect, String flowname ,String projectname) throws Exception {
 	List<Flow> flowLists = Lists.newArrayList();
 	QueryRunner runner = datasource.getRunner();
 	FlowResultHandler handler = new FlowResultHandler();
-	flowLists = runner.query(connect,FlowResultHandler.SELECT_ACTION_FLOW_BY_PROJECT, handler,flowname);
+	flowLists = runner.query(connect,FlowResultHandler.SELECT_ACTION_FLOW_BY_PROJECT, handler,projectname,flowname);
 	return flowLists;
     }
 
-    private List<Node> getAvailableNodes(Connection connect, String nodename) throws Exception {
+    private List<Node> getAvailableNodes(Connection connect, String nodename,Flow flow) throws Exception {
 	List<Node> nodeLists = Lists.newArrayList();
 	QueryRunner runner = datasource.getRunner();
 	NodeResultHandler handler = new NodeResultHandler();
-	nodeLists = runner.query(connect,NodeResultHandler.SELECT_ACTION_NODE_BY_PROJECT_FLOW, handler,nodename);
+	nodeLists = runner.query(connect,NodeResultHandler.SELECT_ACTION_NODE_BY_PROJECT_FLOW, handler,flow.getProject_id(),flow.getFlow_name(),nodename);
 	return nodeLists;
     }
     
@@ -229,7 +249,7 @@ public class JdbcProjectLoador implements ProjectLoader {
     }
 
     private class FlowResultHandler implements ResultSetHandler<List<Flow>> {
-	private static final String SELECT_ACTION_FLOW_BY_PROJECT = "SELECT project_id , version ,flow_id FROM project_flows WHERE  project_id=?";
+	private static final String SELECT_ACTION_FLOW_BY_PROJECT = "SELECT project_id , version ,flow_id FROM project_flows WHERE project_id=? and flow_id=?";
 
 	public List<Flow> handle(ResultSet rs) throws SQLException {
 	    // TODO Auto-generated method stub
@@ -249,7 +269,7 @@ public class JdbcProjectLoador implements ProjectLoader {
     }
 
     private class NodeResultHandler implements ResultSetHandler<List<Node>> {
-	private static final String SELECT_ACTION_NODE_BY_PROJECT_FLOW = "";
+	private static final String SELECT_ACTION_NODE_BY_PROJECT_FLOW = "select * from project_nodes where project_id = ? and flow_id = ? and job_id = ?";
 	public List<Node> handle(ResultSet rs) throws SQLException {
 	    Node node;
 	    List<Node> lists = Lists.newArrayList();
@@ -264,8 +284,7 @@ public class JdbcProjectLoador implements ProjectLoader {
 		    String propertyString = new String(dataBytes, "UTF-8");
 		    Map<String, Object> maps = JsonUtils.parserStringToMap(propertyString);
 		    node = new Node(project_id, flow_name, node_name);
-		    node.setLevel(Integer.parseInt((String) maps.get(Constant.NODE_LEVEL)));
-		    node.setVersion(version);
+		    node.setVersion(version); 
 		    node.setModifiedTime(modifiedTime);
 		    lists.add(node);
 		} catch (UnsupportedEncodingException e) {
@@ -296,7 +315,6 @@ public class JdbcProjectLoador implements ProjectLoader {
 	    }
 	    return version;
 	}
-	
     }
 
     /* (非 Javadoc) 
@@ -321,4 +339,76 @@ public class JdbcProjectLoador implements ProjectLoader {
 	return proListsList.get(0);
     }
 
+    /* (非 Javadoc) 
+    * <p>Title: fetchFlow</p> 
+    * <p>Description: </p> 
+    * @param flowId
+    * @return
+    * @throws Exception 
+    * @see org.azkaban.common.project.ProjectLoader#fetchFlow(java.lang.String) 
+    */
+    public Flow fetchFlow(Integer projectId,String flowId) throws Exception {
+	// TODO Auto-generated method stub
+	QueryRunner runner = datasource.getRunner();
+	List<Flow> lists =runner.query(FlowResultHandler.SELECT_ACTION_FLOW_BY_PROJECT, new FlowResultHandler(),projectId,flowId);
+	return lists.get(0);
+    }
+
+    /* (非 Javadoc) 
+    * <p>Title: fetchNode</p> 
+    * <p>Description: </p> 
+    * @param nodeId
+    * @return
+    * @throws Exception 
+    * @see org.azkaban.common.project.ProjectLoader#fetchNode(java.lang.String) 
+    */
+    public Node fetchNode(Flow flow ,String nodeId) throws Exception {
+	// TODO Auto-generated method stub
+	QueryRunner runner = datasource.getRunner();
+	List<Node> lists =runner.query(NodeResultHandler.SELECT_ACTION_NODE_BY_PROJECT_FLOW, new NodeResultHandler(),flow.getProject_id(),flow.getFlow_name(),nodeId);
+	return lists.get(0);
+}
+
+    /* (非 Javadoc) 
+    * <p>Title: updateProject</p> 
+    * <p>Description: </p> 
+    * @param project
+    * @return
+    * @throws Exception 
+    * @see org.azkaban.common.project.ProjectLoader#updateProject(org.azkaban.common.project.Project) 
+    */
+    public Project updateProject(Project project) throws Exception {
+	// TODO Auto-generated method stub
+	return null;
+    }
+
+    /* (非 Javadoc) 
+    * <p>Title: updateFlow</p> 
+    * <p>Description: </p> 
+    * @param flow
+    * @param project
+    * @return
+    * @throws Exception 
+    * @see org.azkaban.common.project.ProjectLoader#updateFlow(org.azkaban.common.flow.Flow, org.azkaban.common.project.Project) 
+    */
+    public Flow updateFlow(Flow flow, Project project) throws Exception {
+	// TODO Auto-generated method stub
+	return null;
+    }
+
+    /* (非 Javadoc) 
+    * <p>Title: updateNode</p> 
+    * <p>Description: </p> 
+    * @param node
+    * @param flow
+    * @param project
+    * @return
+    * @throws Exception 
+    * @see org.azkaban.common.project.ProjectLoader#updateNode(org.azkaban.common.node.Node, org.azkaban.common.flow.Flow, org.azkaban.common.project.Project) 
+    */
+    public Node updateNode(Node node, Flow flow, Project project)
+	    throws Exception {
+	// TODO Auto-generated method stub
+	return null;
+    }
 }
