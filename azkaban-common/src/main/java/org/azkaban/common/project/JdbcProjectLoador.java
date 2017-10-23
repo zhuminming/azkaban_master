@@ -22,6 +22,7 @@ import java.util.Map;
 
 
 
+
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.ResultSetHandler;
 import org.apache.commons.dbutils.handlers.BeanHandler;
@@ -297,7 +298,6 @@ public class JdbcProjectLoador implements ProjectLoader {
     }
 
     private class IntHander implements ResultSetHandler<Integer> {
-
 	private static final String SELECT_LATEST_VERSION ="select version from projects where name =?";
 	/* (非 Javadoc) 
 	* <p>Title: handle</p> 
@@ -367,7 +367,7 @@ public class JdbcProjectLoador implements ProjectLoader {
 	QueryRunner runner = datasource.getRunner();
 	List<Node> lists =runner.query(NodeResultHandler.SELECT_ACTION_NODE_BY_PROJECT_FLOW, new NodeResultHandler(),flow.getProject_id(),flow.getFlow_name(),nodeId);
 	return lists.get(0);
-}
+    }
 
     /* (非 Javadoc) 
     * <p>Title: updateProject</p> 
@@ -377,9 +377,8 @@ public class JdbcProjectLoador implements ProjectLoader {
     * @throws Exception 
     * @see org.azkaban.common.project.ProjectLoader#updateProject(org.azkaban.common.project.Project) 
     */
-    public Project updateProject(Project project) throws Exception {
+    public void updateProject(Project project) throws Exception {
 	// TODO Auto-generated method stub
-	return null;
     }
 
     /* (非 Javadoc) 
@@ -391,9 +390,14 @@ public class JdbcProjectLoador implements ProjectLoader {
     * @throws Exception 
     * @see org.azkaban.common.project.ProjectLoader#updateFlow(org.azkaban.common.flow.Flow, org.azkaban.common.project.Project) 
     */
-    public Flow updateFlow(Flow flow, Project project) throws Exception {
+    public void updateFlow(Flow flow, Project project) throws Exception {
 	// TODO Auto-generated method stub
-	return null;
+	QueryRunner runner = datasource.getRunner();
+	final String UPDATE_FLOW = "update project_flows set  where ";
+	int result = runner.update(UPDATE_FLOW, "");
+	if(result<=0){
+	    throw new Exception("");
+	}
     }
 
     /* (非 Javadoc) 
@@ -406,9 +410,14 @@ public class JdbcProjectLoador implements ProjectLoader {
     * @throws Exception 
     * @see org.azkaban.common.project.ProjectLoader#updateNode(org.azkaban.common.node.Node, org.azkaban.common.flow.Flow, org.azkaban.common.project.Project) 
     */
-    public Node updateNode(Node node, Flow flow, Project project)
+    public void updateNode(Node node, Flow flow, Project project)
 	    throws Exception {
 	// TODO Auto-generated method stub
-	return null;
+	QueryRunner runner = datasource.getRunner();
+	final String UPDATE_NODE = "update project_nodes set  where ";
+	int result = runner.update(UPDATE_NODE, "");
+	if(result<=0){
+	    throw new Exception("");
+	}
     }
 }
