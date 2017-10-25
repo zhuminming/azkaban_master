@@ -49,6 +49,7 @@ public class ExecutableFlow extends ExecutableFlowBase {
 	this.projectName = project.getName();
 	this.version = project.getVersion();
 	this.lastModifiedTimestamp = project.getModified_time();
+	this.setFlow(flow);
     }
 
     public static ExecutableFlow createExecutableFlowFromJson(String json) {
@@ -71,7 +72,12 @@ public class ExecutableFlow extends ExecutableFlowBase {
 	this.lastModifiedTimestamp = mapWrapper.getLong(LASTMODIFIEDTIME_PARAM);
 	this.submitTime = mapWrapper.getLong(SUBMITTIME_PARAM);
     }
-
+    
+    @Override
+    public void setFlow(Flow flow){
+	super.setFlow(flow);
+    }
+    
     @Override
     public Map<String, Object> toObject() {
       HashMap<String, Object> flowObj = new HashMap<String, Object>();
@@ -96,6 +102,7 @@ public class ExecutableFlow extends ExecutableFlowBase {
 
       return flowObj;
     }
+    
     
     public int getExecutionId() {
         return executionId;

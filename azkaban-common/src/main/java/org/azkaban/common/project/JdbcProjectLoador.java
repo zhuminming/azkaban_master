@@ -119,7 +119,7 @@ public class JdbcProjectLoador implements ProjectLoader {
     public synchronized void changeProjectVersion(Project project, int version) throws Exception {
 	QueryRunner runner = datasource.getRunner();
 	long lastModifiedTimestamp = System.currentTimeMillis();
-	final String UPADTE_PROJECT_VERSION = "UPDATE projects set version=?,modified_time=?,last_modified_by=? WHERE id=? ";
+	final String UPADTE_PROJECT_VERSION = "UPDATE projects set version=?,modified_time=? WHERE id=? ";
 	int result = runner.update(UPADTE_PROJECT_VERSION, version,lastModifiedTimestamp, project.getId());
 	project.setVersion(version);
 	project.setModified_time(lastModifiedTimestamp);
@@ -367,57 +367,5 @@ public class JdbcProjectLoador implements ProjectLoader {
 	QueryRunner runner = datasource.getRunner();
 	List<Node> lists =runner.query(NodeResultHandler.SELECT_ACTION_NODE_BY_PROJECT_FLOW, new NodeResultHandler(),flow.getProject_id(),flow.getFlow_name(),nodeId);
 	return lists.get(0);
-    }
-
-    /* (非 Javadoc) 
-    * <p>Title: updateProject</p> 
-    * <p>Description: </p> 
-    * @param project
-    * @return
-    * @throws Exception 
-    * @see org.azkaban.common.project.ProjectLoader#updateProject(org.azkaban.common.project.Project) 
-    */
-    public void updateProject(Project project) throws Exception {
-	// TODO Auto-generated method stub
-    }
-
-    /* (非 Javadoc) 
-    * <p>Title: updateFlow</p> 
-    * <p>Description: </p> 
-    * @param flow
-    * @param project
-    * @return
-    * @throws Exception 
-    * @see org.azkaban.common.project.ProjectLoader#updateFlow(org.azkaban.common.flow.Flow, org.azkaban.common.project.Project) 
-    */
-    public void updateFlow(Flow flow, Project project) throws Exception {
-	// TODO Auto-generated method stub
-	QueryRunner runner = datasource.getRunner();
-	final String UPDATE_FLOW = "update project_flows set  where ";
-	int result = runner.update(UPDATE_FLOW, "");
-	if(result<=0){
-	    throw new Exception("");
-	}
-    }
-
-    /* (非 Javadoc) 
-    * <p>Title: updateNode</p> 
-    * <p>Description: </p> 
-    * @param node
-    * @param flow
-    * @param project
-    * @return
-    * @throws Exception 
-    * @see org.azkaban.common.project.ProjectLoader#updateNode(org.azkaban.common.node.Node, org.azkaban.common.flow.Flow, org.azkaban.common.project.Project) 
-    */
-    public void updateNode(Node node, Flow flow, Project project)
-	    throws Exception {
-	// TODO Auto-generated method stub
-	QueryRunner runner = datasource.getRunner();
-	final String UPDATE_NODE = "update project_nodes set  where ";
-	int result = runner.update(UPDATE_NODE, "");
-	if(result<=0){
-	    throw new Exception("");
-	}
     }
 }

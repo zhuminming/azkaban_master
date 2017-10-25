@@ -26,8 +26,5 @@ public interface ProjectLoader {
     public Project fetchPoject(String projectName) throws Exception;
     public Flow fetchFlow(Integer projectId,String flowId) throws Exception;
     public Node fetchNode(Flow flow,String nodeId) throws Exception;
-    public void updateProject(Project project) throws Exception;
-    public void updateFlow(Flow flow,Project project) throws Exception;
-    public void updateNode(Node node ,Flow flow,Project project) throws Exception;
 
 }

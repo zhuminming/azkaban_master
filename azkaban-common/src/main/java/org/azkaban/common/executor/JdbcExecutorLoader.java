@@ -127,7 +127,7 @@ public class JdbcExecutorLoader implements ExecutorLoader {
             + "values (?,?,?,?,?,?,?)";
 	long submitTime = System.currentTimeMillis();
 	try {
-	    runner.update(INSERT_EXECUTABLE_FLOW_DATA, flow.getProjectId(),flow.getVersion(),flow.getFlow_name(),Status.PREPARING.getNumVal(),flow.getSubmitUser(),submitTime,submitTime);
+	    runner.update(INSERT_EXECUTABLE_FLOW_DATA, flow.getProjectId(),flow.getVersion(),flow.getflow_id(),Status.PREPARING.getNumVal(),flow.getSubmitUser(),submitTime,submitTime);
 	} catch (SQLException e) {
 	    // TODO Auto-generated catch block
 	    e.printStackTrace();

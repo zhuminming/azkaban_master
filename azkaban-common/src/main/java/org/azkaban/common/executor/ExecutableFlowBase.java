@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.azkaban.common.flow.Flow;
 import org.azkaban.common.utils.TypedMapWrapper;
 
 import com.alibaba.fastjson.JSONObject;
@@ -20,16 +21,16 @@ import com.google.common.collect.Maps;
  *
  */
 public class ExecutableFlowBase extends ExecutableNode {
-    public static final String FLOW_NAME_PARAM = "flow_name";
+    public static final String flow_id_PARAM = "flow_id";
     public static final String NODES_PARAM = "nodes";
     public static final String PROPERTIES_PARAM = "properties";
     public static final String SOURCE_PARAM = "source";
     private HashMap<String, ExecutableNode> executableNodes = Maps.newHashMap();
-    private String flow_name;
+    private String flow_id;
 
     public void fillExecutableFromMapObject(
 	    TypedMapWrapper<String, Object> flowObj) {
-	this.flow_name = flowObj.getString(FLOW_NAME_PARAM);
+	this.flow_id = flowObj.getString(flow_id_PARAM);
 	List<Object> lists = flowObj.getExecNodeLists(NODES_PARAM);
 	if (lists == null)
 	    return;
@@ -54,7 +55,7 @@ public class ExecutableFlowBase extends ExecutableNode {
     protected void fillMapFromExecutable(Map<String, Object> flowObjMap) {
 	super.fillMapFromExecutable(flowObjMap);
 
-	flowObjMap.put(FLOW_NAME_PARAM, flow_name);
+	flowObjMap.put(flow_id_PARAM, flow_id);
 
 	ArrayList<Object> nodes = new ArrayList<Object>();
 	for (ExecutableNode node : executableNodes.values()) {
@@ -63,6 +64,10 @@ public class ExecutableFlowBase extends ExecutableNode {
 	flowObjMap.put(NODES_PARAM, nodes);
     }
 
+    public void setFlow(Flow flow){
+	this.flow_id = flow.getFlow_name();
+    }
+    
     public ExecutableFlowBase() {
     }
 
@@ -107,12 +112,12 @@ public class ExecutableFlowBase extends ExecutableNode {
 	this.executableNodes = executableNodes;
     }
 
-    public String getFlow_name() {
-	return flow_name;
+    public String getflow_id() {
+	return flow_id;
     }
 
-    public void setFlow_name(String flow_name) {
-	this.flow_name = flow_name;
+    public void setflow_id(String flow_id) {
+	this.flow_id = flow_id;
     }
 
 }

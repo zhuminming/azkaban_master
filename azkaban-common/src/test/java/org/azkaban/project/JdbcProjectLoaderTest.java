@@ -36,7 +36,7 @@ public class JdbcProjectLoaderTest {
 //    @Test
 //    public void createNewProjectTest(){
 //	try {
-//	    loador.createNewProject("project3");
+//	    loador.createNewProject("project4");
 //	} catch (Exception e) {
 //	    // TODO Auto-generated catch block
 //	    e.printStackTrace();
@@ -67,5 +67,7 @@ public class JdbcProjectLoaderTest {
 //	    e.printStackTrace();
 //	}
 //    }
+    
+
     
 }
