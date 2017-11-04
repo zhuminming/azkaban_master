@@ -23,6 +23,9 @@ import java.util.Map;
 
 
 
+
+import java.util.Set;
+
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.ResultSetHandler;
 import org.apache.commons.dbutils.handlers.BeanHandler;
@@ -36,6 +39,7 @@ import org.azkaban.common.utils.Constant;
 import org.azkaban.common.utils.JsonUtils;
 import org.azkaban.common.utils.Props;
 
+import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.DateSerializer;
 import com.google.common.collect.Lists;
 
@@ -283,10 +287,12 @@ public class JdbcProjectLoador implements ProjectLoader {
 		final byte[] dataBytes = rs.getBytes(6);
 		try {
 		    String propertyString = new String(dataBytes, "UTF-8");
-		    Map<String, Object> maps = JsonUtils.parserStringToMap(propertyString);
+		    Map<String, Object> maps = JSONObject.parseObject(propertyString, Map.class);
 		    node = new Node(project_id, flow_name, node_name);
 		    node.setVersion(version); 
 		    node.setModifiedTime(modifiedTime);
+		    Set<String> sets = JSONObject.parseObject(maps.get("parentNodes").toString(), Set.class);
+		    node.setParentNodes(sets);
 		    lists.add(node);
 		} catch (UnsupportedEncodingException e) {
 		    // TODO Auto-generated catch block

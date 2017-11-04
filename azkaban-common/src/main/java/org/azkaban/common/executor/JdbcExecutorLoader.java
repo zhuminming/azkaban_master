@@ -14,6 +14,7 @@ import java.util.Map;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.ResultSetHandler;
 import org.azkaban.common.database.AzkabanDataSource;
+import org.azkaban.common.utils.JsonUtils;
 import org.azkaban.common.utils.Props;
 
 import com.alibaba.fastjson.JSON;
@@ -55,11 +56,9 @@ public class JdbcExecutorLoader implements ExecutorLoader {
 	}
     }
 
-    private static class FetchExecutableFlows implements
-	    ResultSetHandler<List<ExecutableFlow>> {
+    private static class FetchExecutableFlows implements ResultSetHandler<List<ExecutableFlow>> {
 	private final static String FETCH_EXECUTABLE_FLOW = "SELECT exec_id, flow_data FROM execution_flows "
 		+ "WHERE exec_id=?";
-
 	/*
 	 * (非 Javadoc) <p>Title: handle</p> <p>Description: </p>
 	 * 
@@ -76,7 +75,7 @@ public class JdbcExecutorLoader implements ExecutorLoader {
 	public List<ExecutableFlow> handle(ResultSet rs) throws SQLException {
 	    // TODO Auto-generated method stub
 	    List<ExecutableFlow> flowsList = Lists.newArrayList();
-	    do {
+	    while (rs.next()){
 		int execid = rs.getInt(1);
 		byte[] data = rs.getBytes(2);
 		if (data != null) {
@@ -88,7 +87,7 @@ public class JdbcExecutorLoader implements ExecutorLoader {
 			throw new SQLException("Error retrieving flow data " + execid, e);
 		    }
 		}
-	    } while (rs.next());
+	    } ;
 	    return flowsList;
 	}
     }
@@ -131,6 +130,96 @@ public class JdbcExecutorLoader implements ExecutorLoader {
 	} catch (SQLException e) {
 	    // TODO Auto-generated catch block
 	    e.printStackTrace();
+	}
+    }
+
+    /* (非 Javadoc) 
+    * <p>Title: fetchExecutableNode</p> 
+    * <p>Description: </p> 
+    * @param execid
+    * @return
+    * @throws Exception 
+    * @see org.azkaban.common.executor.ExecutorLoader#fetchExecutableNode(int) 
+    */
+    @Override
+    public ExecutableNode fetchExecutableNode(int execid) throws Exception {
+	// TODO Auto-generated method stub
+	QueryRunner runner =datasource.getRunner();
+
+	FetchExecutableNodes handler= new FetchExecutableNodes();
+	List<ExecutableNode> lists = runner.query(FetchExecutableNodes.FETCH_EXECUTABLE_NODE, handler,execid);
+	if(lists.size()==0){
+	    throw new Exception();
+	}
+	return lists.get(0);
+    }
+
+    /* (非 Javadoc) 
+    * <p>Title: updateExecutableNode</p> 
+    * <p>Description: </p> 
+    * @param node
+    * @throws Exception 
+    * @see org.azkaban.common.executor.ExecutorLoader#updateExecutableNode(org.azkaban.common.executor.ExecutableNode) 
+    */
+    @Override
+    public void updateExecutableNode(ExecutableNode node) throws Exception {
+	// TODO Auto-generated method stub
+	QueryRunner runner = datasource.getRunner();
+	final String UPDATE_EXECUTABLE_NODE_DATA = "UPDATE execution_nodes "
+		+ "SET status=?,update_time=?,start_time=?,end_time=?,command=? "
+		+ "WHERE exec_id=?";
+	Map<String, Object> maps = node.toObject();
+	try{
+	    runner.update(UPDATE_EXECUTABLE_NODE_DATA, node
+			.getStatus().getNumVal(), node.getUpdateTime(), node
+			.getStartTime(), node.getEndTime(), JsonUtils.toJSON(node),
+			node.getExec_id());
+	}catch(Exception e){
+	   throw new Exception("Error updating flow.", e);
+	}
+    }
+
+    /* (非 Javadoc) 
+    * <p>Title: uploadExecutableNode</p> 
+    * <p>Description: </p> 
+    * @param node
+    * @throws Exception 
+    * @see org.azkaban.common.executor.ExecutorLoader#uploadExecutableNode(org.azkaban.common.executor.ExecutableNode) 
+    */
+    @Override
+    public void uploadExecutableNode(ExecutableFlow flow,ExecutableNode node) throws Exception {
+	// TODO Auto-generated method stub
+	QueryRunner runner = datasource.getRunner();
+	final String INSERT_EXECUTABLE_FLOW_DATA ="INSERT INTO execution_nodes "
+	            + "(exec_id,project_id, version, flow_id, status, submit_user, submit_time, update_time) "
+	            + "values (?,?,?,?,?,?,?,?)";
+	Long submitTime = System.currentTimeMillis();
+	int result = runner.update(INSERT_EXECUTABLE_FLOW_DATA, flow.getExecutionId(),flow.getflow_id(),flow.getVersion(),node.getNodename(),Status.PREPARING.getNumVal(),flow.getSubmitUser(),submitTime,submitTime);
+        if(result == 0 ){
+            throw new Exception();
+        }
+    }
+    
+    private static class FetchExecutableNodes implements ResultSetHandler<List<ExecutableNode>>{
+	private final static String FETCH_EXECUTABLE_NODE = "SELECT exec_id,project_id FROM execution_nodes "
+		+ "WHERE exec_id=?";
+
+	/* (非 Javadoc) 
+	* <p>Title: handle</p> 
+	* <p>Description: </p> 
+	* @param rs
+	* @return
+	* @throws SQLException 
+	* @see org.apache.commons.dbutils.ResultSetHandler#handle(java.sql.ResultSet) 
+	*/
+	@Override
+	public List<ExecutableNode> handle(ResultSet rs) throws SQLException {
+	    // TODO Auto-generated method stub
+	    List< ExecutableNode> nodelists =Lists.newArrayList();
+	    while(rs.next()){
+		int exex_id = rs.getInt(1);
+	    }
+	    return null;
 	}
     }
 }

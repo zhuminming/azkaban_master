@@ -1,5 +1,11 @@
 package org.azkaban.common.node;
 
+import java.util.List;
+import java.util.Set;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+
 
 public class Node {
 	private  final int project_id;
@@ -8,14 +14,15 @@ public class Node {
 	private final String node_name;
 	private long modifiedTime;
 	private int level=-1;
-	private Node node_parent;
 	private int expectedRunTimeSec = 1;
 	private String type;
+	private Set<String> parentnodes;
 	
 	public Node(int project_id,String flow_name,String node_name){
 		this.project_id = project_id;
 		this.flow_name = flow_name;
 		this.node_name = node_name;
+		this.parentnodes = Sets.newHashSet();
 	}
 	
 	public int getProject_id() {
@@ -46,12 +53,18 @@ public class Node {
 		this.level = level;
 	}
 
-	public Node getNode_parent() {
-		return node_parent;
+	public void setNode_parent(String node_parent) {
+	    this.parentnodes.add(node_parent);
 	}
-	public void setNode_parent(Node node_parent) {
-		this.node_parent = node_parent;
+	
+	public void setParentNodes(Set<String> nodes){
+	    this.parentnodes.addAll(nodes);
 	}
+	
+	public Set<String> getParentNodes(){
+	    return this.parentnodes;
+	}
+
 	public int getExpectedRunTimeSec() {
 		return expectedRunTimeSec;
 	}

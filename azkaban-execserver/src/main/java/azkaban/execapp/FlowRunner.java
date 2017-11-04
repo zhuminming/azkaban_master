@@ -22,6 +22,7 @@ import org.azkaban.common.executor.ExecutableFlow;
 import org.azkaban.common.executor.ExecutableNode;
 import org.azkaban.common.executor.ExecutorLoader;
 import org.azkaban.common.executor.Status;
+import org.azkaban.common.jobExecutor.Job;
 import org.azkaban.common.jobtype.JobTypeManager;
 import org.azkaban.common.project.ProjectLoader;
 
@@ -44,6 +45,7 @@ public class FlowRunner implements Runnable {
     private final ExecutableFlow flow;
     private Thread flowRunnerThread;
     private int numJobThreads = 10;
+    private Job job;
     
     private Set<JobRunner> activeJobRunners = Collections.newSetFromMap(new ConcurrentHashMap<JobRunner, Boolean>());
 
@@ -71,8 +73,8 @@ public class FlowRunner implements Runnable {
 	//更新flow状态
 	updateflow();
 	try {
-	    //执行flow
-	    runflow();
+    	      //执行flow
+    	      runflow();
 	} catch (IOException e) {
 	    // TODO Auto-generated catch block
 	    e.printStackTrace();
@@ -84,7 +86,7 @@ public class FlowRunner implements Runnable {
 	runReadyJob(this.flow);
 	updateflow();
     }
-
+    
     private void runReadyJob(ExecutableNode node) throws IOException {
 	if (flow.getStatus() == Status.READY) {
 	    runExecutableNode(node);

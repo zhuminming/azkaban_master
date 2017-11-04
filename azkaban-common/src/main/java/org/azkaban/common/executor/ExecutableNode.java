@@ -35,6 +35,8 @@ public class ExecutableNode {
     private long startTime = -1;
     private long endTime = -1;
     private long updateTime = -1;
+    private int exec_id;
+    private String node_data;
 
     // Path to Job File
     private String jobSource;
@@ -178,5 +180,23 @@ public class ExecutableNode {
     public void setParentFlow(ExecutableFlowBase parentFlow) {
 	this.parentFlow = parentFlow;
     }
+
+    public int getExec_id() {
+        return exec_id;
+    }
+
+    public void setExec_id(int exec_id) {
+        this.exec_id = exec_id;
+    }
+
+    public String getNode_data() {
+        return node_data;
+    }
+
+    public void setNode_data(String node_data) {
+        this.node_data = node_data;
+    }
+    
+    
 
 }

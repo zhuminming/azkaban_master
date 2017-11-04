@@ -13,4 +13,7 @@ public interface ExecutorLoader {
     public ExecutableFlow fetchExecutableFlow(int execid) throws Exception;
     public void updateExecutableFlow(ExecutableFlow flow) throws Exception;
     public void uploadExecutableFlow(ExecutableFlow flow) throws Exception;
+    public ExecutableNode fetchExecutableNode(int execid) throws Exception;
+    public void updateExecutableNode(ExecutableNode node) throws Exception;
+    public void uploadExecutableNode(ExecutableFlow flow,ExecutableNode node) throws Exception;
 }

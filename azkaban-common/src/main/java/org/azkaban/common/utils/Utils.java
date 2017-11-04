@@ -16,36 +16,10 @@
 
 package org.azkaban.common.utils;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.Collection;
-import java.util.Enumeration;
-import java.util.Random;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
-import java.util.zip.ZipOutputStream;
 
-import javax.servlet.http.HttpServletRequest;
-
-import org.apache.commons.io.IOUtils;
-import org.joda.time.Days;
-import org.joda.time.DurationFieldType;
-import org.joda.time.Hours;
-import org.joda.time.Minutes;
-import org.joda.time.Months;
-import org.joda.time.ReadablePeriod;
-import org.joda.time.Seconds;
-import org.joda.time.Weeks;
-import org.joda.time.Years;
 
 /**
  * A util helper class full of static methods that are commonly used.
@@ -108,5 +82,10 @@ public class Utils {
       } else {
         return t;
       }
+    }
+    
+    public static String getRootFilePath() throws IOException{
+	File file = new File(".");
+	return file.getCanonicalPath();
     }
 }

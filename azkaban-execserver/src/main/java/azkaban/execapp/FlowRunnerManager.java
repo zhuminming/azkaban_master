@@ -78,7 +78,7 @@ public class FlowRunnerManager {
 	    throw new Exception("Error loading flow with exec " + execid);
 	}
 	setupFlow(flow);
-	//初始化FlowRunner线程，用于
+	//初始化FlowRunner线程
 	FlowRunner runner = new FlowRunner(flow, executorLoader, projectLoader, jobtypeManager);
 	if(runningFlows.containsKey(execid)){
 	    throw new Exception("Execution " + execid + " is already running.");

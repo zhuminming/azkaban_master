@@ -42,16 +42,15 @@ public class JdbcExecutorLoaderTest {
 	    e.printStackTrace();
 	}
     }
-    @Test
-    public void updateExecutableFlow(){
-	try {
-	    int execid=0;
-	    ExecutableFlow execflow = loador.fetchExecutableFlow(execid);
-	    loador.updateExecutableFlow(execflow);
-	} catch (Exception e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
-	}
-    }
-
+//    @Test
+//    public void updateExecutableFlow(){
+//	try {
+//	    int execid=0;
+//	    ExecutableFlow execflow = loador.fetchExecutableFlow(execid);
+//	    loador.updateExecutableFlow(execflow);
+//	} catch (Exception e) {
+//	    // TODO Auto-generated catch block
+//	    e.printStackTrace();
+//	}
+//    }
 }
